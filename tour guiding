@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hagia Sophia (Ayasofya) - Turist Rehberliği İngilizce Modülü</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cinzel & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Cinzel', 'serif'],
+                    },
+                    colors: {
+                        marble: {
+                            50: '#FDFBF7',
+                            100: '#F7F2E7',
+                            200: '#ECE2CE',
+                            300: '#DDD0B4'
+                        },
+                        terracotta: {
+                            600: '#B84A39',
+                            700: '#9A382A',
+                            800: '#7C2B20',
+                            900: '#591D15'
+                        },
+                        slatebyz: {
+                            800: '#1E293B',
+                            900: '#0F172A'
+                        },
+                        domegold: {
+                            400: '#E7B94B',
+                            500: '#CE9B2C',
+                            600: '#A87B1B'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        /* NOTE: text-transform: uppercase is intentionally NEVER used so Turkish browsers never turn English 'i' into 'İ' */
+        body {
+            background-color: #FDFBF7;
+            background-image: radial-gradient(#E5D9C3 0.8px, transparent 0.8px);
+            background-size: 24px 24px;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F7F2E7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CE9B2C;
+            border-radius: 9999px;
+        }
+        .active-speaking {
+            box-shadow: 0 0 0 3px rgba(206, 155, 44, 0.65);
+            background-color: #FFFBEB !important;
+            transition: all 0.25s ease;
+        }
+        .vocab-inline {
+            border-bottom: 2px dashed #CE9B2C;
+            color: #9A382A;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0 3px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        .vocab-inline:hover {
+            background-color: #FEF3C7;
+        }
+        @keyframes eqPulse {
+            0%, 100% { transform: scaleY(0.45); }
+            50% { transform: scaleY(1.15); }
+        }
+        .eq-bar {
+            animation: eqPulse 0.75s infinite ease-in-out;
+        }
+        .eq-bar:nth-child(2) { animation-delay: 0.15s; }
+        .eq-bar:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body class="font-sans text-stone-800 antialiased min-h-screen flex flex-col">
+
+    <!-- =====================================================
+         GLOBAL STICKY AUDIO CONTROL BAR (TOP)
+         ===================================================== -->
+    <div class="sticky top-0 z-40 bg-slatebyz-900 text-marble-50 border-b-2 border-domegold-500 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            <!-- Currently Playing Status Indicator -->
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div id="audioWaveIcon" class="hidden items-end gap-0.5 h-4 shrink-0">
+                    <span class="w-1 h-3 bg-domegold-400 rounded eq-bar"></span>
+                    <span class="w-1 h-4 bg-domegold-400 rounded eq-bar"></span>
+                    <span class="w-1 h-2.5 bg-domegold-400 rounded eq-bar"></span>
+                </div>
+                <i id="audioIdleIcon" class="fa-solid fa-headphones text-domegold-400 text-sm shrink-0"></i>
+                <span id="audioStatusLabel" class="text-xs sm:text-sm font-medium text-marble-100 truncate max-w-[220px] sm:max-w-md">
+                    Sesli Rehber Hazır — Dinlemek için hoparlör butonlarına tıklayın
+                </span>
+            </div>
+
+            <!-- Speed Toggle & Stop Button -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs text-stone-300 hidden sm:inline">Okuma Hızı:</span>
+                <div class="inline-flex rounded-xl bg-slatebyz-800 p-0.5 border border-stone-700" lang="en">
+                    <button id="rateBtn-0.8" onclick="setSpeechRate(0.8)" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition text-stone-300 hover:text-white">
+                        Slow (0.8x)
+                    </button>
+                    <button id="rateBtn-1" onclick="setSpeechRate(1.0)" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-domegold-500 text-stone-950 shadow-sm">
+                        Normal (1.0x)
+                    </button>
+                    <button id="rateBtn-1.15" onclick="setSpeechRate(1.15)" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition text-stone-300 hover:text-white">
+                        Fast (1.15x)
+                    </button>
+                </div>
+                <button id="stopAudioBtn" onclick="stopSpeech()" class="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-stop"></i> Sesi Durdur
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         HERO HEADER
+         ===================================================== -->
+    <header class="bg-gradient-to-br from-terracotta-900 via-terracotta-800 to-slatebyz-900 text-marble-50 relative overflow-hidden border-b-4 border-domegold-500">
+        <!-- Architectural Dome & Minarets SVG Silhouette -->
+        <div class="absolute right-0 bottom-0 opacity-10 pointer-events-none">
+            <svg width="420" height="180" viewBox="0 0 420 180" fill="currentColor">
+                <path d="M210 28 C135 28 100 84 100 115 L65 115 L65 180 L355 180 L355 115 L320 115 C320 84 285 28 210 28 Z"/>
+                <rect x="28" y="12" width="12" height="168"/>
+                <polygon points="34,0 25,16 43,16"/>
+                <rect x="380" y="12" width="12" height="168"/>
+                <polygon points="386,0 377,16 395,16"/>
+            </svg>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-7 sm:py-9 relative z-10">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div class="space-y-2.5">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-domegold-500/20 border border-domegold-400/50 text-domegold-400 text-xs font-bold tracking-wide" lang="en">
+                        <i class="fa-solid fa-compass"></i> TOURIST GUIDING ENGLISH • LEVEL: PRE-INTERMEDIATE / INTERMEDIATE (A2–B1+)
+                    </div>
+                    <h1 class="font-display text-2xl sm:text-4xl font-extrabold text-white tracking-wide leading-tight" lang="en">
+                        HAGIA SOPHIA <span class="text-domegold-400 font-semibold text-xl sm:text-2xl">(Ayasofya)</span>
+                    </h1>
+                    <p class="text-marble-200 text-sm sm:text-base max-w-3xl leading-relaxed">
+                        Turist rehberliği öğrencileri için özel olarak hazırlanan kapsamlı eğitim kaynağı: <strong>35 mesleki kelime</strong>, <strong>18 rehberlik kalıbı</strong>, <strong>5 paragraflık okuma parçası</strong>, <strong>14 repliklik canlı tur diyaloğu</strong>, <strong lang="en">8 Interesting Facts</strong> ve <strong>10 soruluk mini test</strong>. Her bölümde sesli İngilizce telaffuz, IPA ve Türkçe okunuş rehberi yer alır.
+                    </p>
+                </div>
+
+                <!-- Quick Stats Cards -->
+                <div class="grid grid-cols-3 gap-2.5 shrink-0">
+                    <div class="bg-slatebyz-900/60 backdrop-blur-sm border border-domegold-500/30 rounded-2xl p-3 text-center">
+                        <div class="text-xl sm:text-2xl font-extrabold text-domegold-400">35</div>
+                        <div class="text-[11px] text-marble-200 font-medium">Kelime + Ses</div>
+                    </div>
+                    <div class="bg-slatebyz-900/60 backdrop-blur-sm border border-domegold-500/30 rounded-2xl p-3 text-center">
+                        <div class="text-xl sm:text-2xl font-extrabold text-domegold-400">18</div>
+                        <div class="text-[11px] text-marble-200 font-medium">Tur Kalıbı</div>
+                    </div>
+                    <div class="bg-slatebyz-900/60 backdrop-blur-sm border border-domegold-500/30 rounded-2xl p-3 text-center">
+                        <div class="text-xl sm:text-2xl font-extrabold text-domegold-400">100%</div>
+                        <div class="text-[11px] text-marble-200 font-medium">Okunuş Rehberi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- =====================================================
+         MAIN NAVIGATION TABS (6 RICH SECTIONS)
+         ===================================================== -->
+    <nav class="bg-marble-100 border-b border-marble-300 shadow-sm sticky top-[46px] sm:top-[48px] z-30">
+        <div class="max-w-6xl mx-auto px-2 sm:px-6">
+            <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-2.5">
+                <button onclick="switchTab('vocab')" data-tab="vocab" class="tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 bg-terracotta-700 text-white shadow-sm">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span>1. Kelimeler (35)</span>
+                </button>
+                <button onclick="switchTab('phrases')" data-tab="phrases" class="tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 text-stone-700 hover:bg-marble-200">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>2. Rehberlik Kalıpları (18)</span>
+                </button>
+                <button onclick="switchTab('reading')" data-tab="reading" class="tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 text-stone-700 hover:bg-marble-200">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                    <span>3. Okuma Parçası</span>
+                </button>
+                <button onclick="switchTab('dialogue')" data-tab="dialogue" class="tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 text-stone-700 hover:bg-marble-200">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>4. Turist-Rehber Diyaloğu (14)</span>
+                </button>
+                <button onclick="switchTab('facts')" data-tab="facts" class="tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 text-stone-700 hover:bg-marble-200">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span lang="en">5. Interesting Facts (8)</span>
+                </button>
+                <button onclick="switchTab('quiz')" data-tab="quiz" class="tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 text-stone-700 hover:bg-marble-200">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>6. Mini Test (10 Soru)</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- NON-BLOCKING TOAST NOTIFICATION -->
+    <div id="toastBanner" class="fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 bg-slatebyz-900 text-marble-50 border-l-4 border-domegold-400 px-4 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-medium">
+        <i class="fa-solid fa-circle-check text-domegold-400"></i>
+        <span id="toastMessage">Bilgi</span>
+    </div>
+
+    <!-- =====================================================
+         MAIN CONTENT AREA
+         ===================================================== -->
+    <main class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
+
+        <!-- =================================================
+             SECTION 1: KELİMELER (35 ESSENTIAL VOCABULARY WORDS)
+             ================================================= -->
+        <section id="tab-vocab" class="tab-panel space-y-6">
+            <!-- Control Card -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 border border-marble-200 shadow-sm space-y-4">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="font-display text-xl sm:text-2xl font-bold text-terracotta-800 flex items-center gap-2">
+                            <i class="fa-solid fa-landmark text-domegold-500"></i> Ayasofya Rehberlik Kelime Hazinesi (35 Kelime)
+                        </h2>
+                        <p class="text-sm text-stone-600 mt-1">
+                            Her kelimenin İngilizce seslendirmesini ve örnek rehber cümlesini dinleyebilir, IPA + Türkçe okunuşunu inceleyebilir ve öğrendiklerinizi işaretleyebilirsiniz.
+                        </p>
+                    </div>
+
+                    <!-- Learned Progress Box -->
+                    <div class="bg-marble-100 border border-marble-300 rounded-2xl px-4 py-3 min-w-[230px]">
+                        <div class="flex items-center justify-between text-xs font-bold text-stone-700 mb-1.5">
+                            <span>Öğrenme Durumu</span>
+                            <span id="learnedCountText" class="text-terracotta-800">0 / 35 Öğrenildi</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-marble-300 rounded-full overflow-hidden">
+                            <div id="learnedProgressBar" class="h-full bg-emerald-600 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search, Category Filters & Memorization Toggle -->
+                <div class="pt-3 border-t border-marble-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-1.5" id="vocabCatBtns">
+                        <button onclick="setVocabCategory('all')" data-vcat="all" class="vcat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-terracotta-700 text-white">Tümü (35)</button>
+                        <button onclick="setVocabCategory('Mimari')" data-vcat="Mimari" class="vcat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-marble-100 text-stone-700 hover:bg-marble-200">Mimari</button>
+                        <button onclick="setVocabCategory('Tarih & Din')" data-vcat="Tarih & Din" class="vcat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-marble-100 text-stone-700 hover:bg-marble-200">Tarih & Din</button>
+                        <button onclick="setVocabCategory('Rehberlik & Tur')" data-vcat="Rehberlik & Tur" class="vcat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-marble-100 text-stone-700 hover:bg-marble-200">Rehberlik & Tur</button>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="relative flex-1 sm:flex-initial">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xs"></i>
+                            <input type="text" id="vocabSearchInput" oninput="renderVocabulary()" placeholder="İngilizce veya Türkçe ara..." class="w-full sm:w-56 pl-8 pr-3 py-2 rounded-xl border border-marble-300 bg-marble-50 text-xs sm:text-sm focus:outline-none focus:border-domegold-500">
+                        </div>
+                        <button id="toggleHideMeaningsBtn" onclick="toggleVocabMemorizeMode()" class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs transition flex items-center gap-1.5 border border-amber-300">
+                            <i class="fa-solid fa-eye-slash"></i> Türkçe Anlamları Gizle (Ezber Modu)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 35 Vocabulary Cards Grid -->
+            <div id="vocabCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- =================================================
+             SECTION 2: REHBERLİK KALIPLARI (18 GUIDING PATTERNS)
+             ================================================= -->
+        <section id="tab-phrases" class="tab-panel hidden space-y-6">
+            <div class="bg-white rounded-2xl p-5 sm:p-6 border border-marble-200 shadow-sm space-y-4">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="font-display text-xl sm:text-2xl font-bold text-terracotta-800 flex items-center gap-2">
+                            <i class="fa-solid fa-bullhorn text-domegold-500"></i> Pratik Turist Rehberliği Kalıpları (18 Kalıp)
+                        </h2>
+                        <p class="text-sm text-stone-600 mt-1">
+                            Ayasofya turunun başından sonuna kadar kullanabileceğiniz doğal cümle kalıpları, okunuşları ve sahada işinize yarayacak rehberlik ipuçları.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 3 Category Filter Buttons -->
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-marble-200">
+                    <button onclick="setPhraseCategory('all')" data-pcat="all" class="pcat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-terracotta-700 text-white">
+                        Tümü (18)
+                    </button>
+                    <button onclick="setPhraseCategory('welcome')" data-pcat="welcome" class="pcat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-marble-100 text-stone-700 hover:bg-marble-200">
+                        Karşılama & Kurallar (<span lang="en">Welcome & Rules</span>) (6)
+                    </button>
+                    <button onclick="setPhraseCategory('history')" data-pcat="history" class="pcat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-marble-100 text-stone-700 hover:bg-marble-200">
+                        Tarih & Mimari (<span lang="en">History & Architecture</span>) (6)
+                    </button>
+                    <button onclick="setPhraseCategory('directions')" data-pcat="directions" class="pcat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-marble-100 text-stone-700 hover:bg-marble-200">
+                        Yönlendirme & Serbest Zaman (<span lang="en">Directions & Free Time</span>) (6)
+                    </button>
+                </div>
+            </div>
+
+            <div id="phrasesListContainer" class="space-y-4"></div>
+        </section>
+
+        <!-- =================================================
+             SECTION 3: OKUMA PARÇASI (READING PASSAGE + 5 QUESTIONS)
+             ================================================= -->
+        <section id="tab-reading" class="tab-panel hidden space-y-6">
+            <div class="bg-white rounded-2xl p-5 sm:p-7 border border-marble-200 shadow-sm">
+                <!-- Reading Header & Toggles -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-marble-200">
+                    <div>
+                        <span class="text-xs font-bold text-domegold-600 tracking-wider" lang="en">READING PASSAGE • PRE-INTERMEDIATE / INTERMEDIATE</span>
+                        <h2 class="font-display text-2xl sm:text-3xl font-bold text-terracotta-800 mt-1" lang="en">
+                            Hagia Sophia: The Monument of Holy Wisdom
+                        </h2>
+                        <p class="text-xs sm:text-sm text-stone-600 mt-1">
+                            <i class="fa-solid fa-hand-pointer text-domegold-600"></i> Metin içindeki <strong>altı çizili kelimelere tıklayarak</strong> anlam ve okunuş kartını açabilirsiniz.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        <button id="playAllReadingBtn" onclick="togglePlayAllReading()" class="px-4 py-2.5 rounded-xl bg-terracotta-700 hover:bg-terracotta-800 text-white font-bold text-xs sm:text-sm shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-play"></i> Tüm Metni Dinle (<span lang="en">Play All</span>)
+                        </button>
+                        <button id="toggleReadingPronBtn" onclick="toggleReadingPronunciation()" class="px-3.5 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 font-bold text-xs sm:text-sm transition">
+                            🗣️ Okunuş Rehberini Gizle
+                        </button>
+                        <button id="toggleReadingTransBtn" onclick="toggleReadingTranslations()" class="px-3.5 py-2.5 rounded-xl bg-marble-100 hover:bg-marble-200 text-stone-800 border border-marble-300 font-bold text-xs sm:text-sm transition">
+                            🇹🇷 Türkçe Çeviriyi Göster
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Clickable Word Popup Banner -->
+                <div id="inlineVocabPopup" class="hidden mt-4 p-4 rounded-2xl bg-amber-50 border-2 border-domegold-400 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                    <div class="space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span id="popupVocabWord" class="font-display font-bold text-lg text-terracotta-800" lang="en"></span>
+                            <span id="popupVocabPron" class="text-xs px-2.5 py-0.5 rounded-lg bg-white border border-amber-300 text-amber-950 font-semibold"></span>
+                        </div>
+                        <p id="popupVocabMeaning" class="text-sm font-bold text-stone-800"></p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button id="popupVocabSpeakBtn" class="px-3.5 py-2 rounded-xl bg-terracotta-700 hover:bg-terracotta-800 text-white text-xs font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-volume-high"></i> Kelimeyi Dinle
+                        </button>
+                        <button onclick="document.getElementById('inlineVocabPopup').classList.add('hidden')" class="w-8 h-8 rounded-lg bg-white border border-amber-200 text-stone-500 hover:text-stone-800 flex items-center justify-center">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5 Paragraphs Container -->
+                <div id="readingParagraphsBox" class="mt-6 space-y-5"></div>
+            </div>
+
+            <!-- 5 Reading Comprehension Questions -->
+            <div class="bg-white rounded-2xl p-5 sm:p-7 border border-marble-200 shadow-sm">
+                <h3 class="font-display text-lg sm:text-xl font-bold text-terracotta-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-question text-domegold-500"></i> Okuduğunu Anlama Soruları (<span lang="en">5 Reading Comprehension Questions</span>)
+                </h3>
+                <div id="readingCompGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </section>
+
+        <!-- =================================================
+             SECTION 4: TURİST - REHBER DİYALOĞU (14 LINES)
+             ================================================= -->
+        <section id="tab-dialogue" class="tab-panel hidden space-y-6">
+            <div class="bg-white rounded-2xl p-5 sm:p-7 border border-marble-200 shadow-sm">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-marble-200">
+                    <div>
+                        <span class="text-xs font-bold text-domegold-600 tracking-wider" lang="en">REALISTIC GUIDED TOUR DIALOGUE • 14 LINES</span>
+                        <h2 class="font-display text-xl sm:text-2xl font-bold text-terracotta-800 mt-1" lang="en">
+                            A Guided Tour Inside Hagia Sophia
+                        </h2>
+                        <p class="text-sm text-stone-600 mt-1">
+                            <strong>Rehber Kerem</strong>, <strong>Sarah</strong> (İngiltere) ve <strong>Marco</strong> (İtalya) arasında Sultanahmet Meydanı'ndan Ayasofya'nın içine uzanan gerçekçi tur diyaloğu.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        <button id="playFullDialogueBtn" onclick="togglePlayFullDialogue()" class="px-4 py-2.5 rounded-xl bg-terracotta-700 hover:bg-terracotta-800 text-white font-bold text-xs sm:text-sm shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-circle-play"></i> Tüm Diyaloğu Sırayla Dinle
+                        </button>
+                        <button id="toggleDiagPronBtn" onclick="toggleDialoguePron()" class="px-3.5 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 font-bold text-xs sm:text-sm transition">
+                            🗣️ Okunuşları Gizle
+                        </button>
+                        <button id="toggleDiagTransBtn" onclick="toggleDialogueTrans()" class="px-3.5 py-2.5 rounded-xl bg-marble-100 hover:bg-marble-200 text-stone-800 border border-marble-300 font-bold text-xs sm:text-sm transition">
+                            🇹🇷 Çeviriyi Göster
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Character Legend -->
+                <div class="mt-4 flex flex-wrap gap-2 text-xs">
+                    <span class="px-3 py-1 rounded-full bg-terracotta-700 text-white font-bold">🚩 <span lang="en">Guide Kerem</span> (Türk Turist Rehberi)</span>
+                    <span class="px-3 py-1 rounded-full bg-sky-700 text-white font-bold">🇬🇧 <span lang="en">Sarah</span> (İngiliz Turist)</span>
+                    <span class="px-3 py-1 rounded-full bg-emerald-700 text-white font-bold">🇮🇹 <span lang="en">Marco</span> (İtalyan Turist)</span>
+                </div>
+
+                <!-- 14 Dialogue Lines -->
+                <div id="dialogueLinesContainer" class="mt-6 space-y-4"></div>
+            </div>
+        </section>
+
+        <!-- =================================================
+             SECTION 5: INTERESTING FACTS (8 FACTS)
+             ================================================= -->
+        <section id="tab-facts" class="tab-panel hidden space-y-6">
+            <div class="bg-white rounded-2xl p-5 sm:p-6 border border-marble-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold text-domegold-600 tracking-wider" lang="en">STORIES THAT TOURISTS LOVE</span>
+                    <h2 class="font-display text-xl sm:text-2xl font-bold text-terracotta-800 mt-1 flex items-center gap-2" lang="en">
+                        <i class="fa-solid fa-wand-magic-sparkles text-domegold-500"></i> 8 Interesting Facts About Hagia Sophia
+                    </h2>
+                    <p class="text-sm text-stone-600 mt-1">
+                        Tur sırasında turistlerin dikkatini anında toplayacak, kolayca ezberleyip anlatabileceğiniz 8 şaşırtıcı Ayasofya hikayesi.
+                    </p>
+                </div>
+                <button id="toggleAllFactsPronBtn" onclick="toggleAllFactsPron()" class="px-4 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold shrink-0">
+                    🗣️ Tüm Okunuşları Göster / Gizle
+                </button>
+            </div>
+
+            <div id="factsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </section>
+
+        <!-- =================================================
+             SECTION 6: MINI QUIZ (10 INTERACTIVE QUESTIONS)
+             ================================================= -->
+        <section id="tab-quiz" class="tab-panel hidden space-y-6">
+            <div class="bg-white rounded-2xl p-5 sm:p-6 border border-marble-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold text-domegold-600 tracking-wider" lang="en">INTERACTIVE PRACTICE QUIZ</span>
+                    <h2 class="font-display text-xl sm:text-2xl font-bold text-terracotta-800 mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-award text-domegold-500"></i> Rehberlik Bilgisi ve Kelime Testi (10 Soru)
+                    </h2>
+                    <p class="text-sm text-stone-600 mt-1">
+                        Kelime bilginizi, telaffuz eşleştirmelerini, rehberlik kalıplarını ve Ayasofya tarihini 10 soruda test edin.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <div class="px-4 py-2.5 rounded-xl bg-marble-100 border border-marble-300 text-sm font-extrabold text-terracotta-800">
+                        Skor: <span id="quizScoreCount">0</span> / 10
+                    </div>
+                    <button onclick="resetQuizAll()" class="px-4 py-2.5 rounded-xl bg-domegold-500 hover:bg-domegold-600 text-stone-950 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-rotate-right"></i> Testi Sıfırla
+                    </button>
+                </div>
+            </div>
+
+            <div id="quizQuestionsList" class="space-y-5"></div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slatebyz-900 text-marble-200 border-t-2 border-domegold-500 mt-12 py-6">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-mosque text-domegold-400"></i>
+                <span><strong lang="en">Hagia Sophia Tourist Guiding Module</strong> • Seviye: <span lang="en">Pre-Intermediate / Intermediate (A2–B1+)</span></span>
+            </div>
+            <div class="text-stone-400">
+                🔊 Tüm İngilizce seslendirmeler tarayıcınızın yerleşik ses motoru ile çalışır.
+            </div>
+        </div>
+    </footer>
+
+    <!-- =====================================================
+         COMPLETE DATA & INTERACTIVE JAVASCRIPT
+         ===================================================== -->
+    <script>
+        // =====================================================
+        // 1. EXACTLY 35 ESSENTIAL VOCABULARY WORDS (NO 'İ' IN ENGLISH!)
+        // =====================================================
+        const vocabularyData = [
+            {
+                id: 1,
+                word: "Dome",
+                ipa: "/doʊm/",
+                okunus: "doum",
+                tr: "Kubbe",
+                cat: "Mimari",
+                exEn: "The giant central dome is fifty-five meters above the floor.",
+                exOkunus: "dı cay-ınt sen-trıl doum iz fif-ti fayv mi-tırz e-bav dı flor",
+                exTr: "Devasa merkezi kubbe zeminden elli beş metre yüksektedir."
+            },
+            {
+                id: 2,
+                word: "Mosaic",
+                ipa: "/moʊˈzeɪ.ɪk/",
+                okunus: "mo-zey-ik",
+                tr: "Mozaik",
+                cat: "Mimari",
+                exEn: "Artists used millions of tiny gold cubes to make this mosaic.",
+                exOkunus: "ar-tists yuzd mil-yınz ov tay-ni gold kyuubz tu meyk dis mo-zey-ik",
+                exTr: "Sanatçılar bu mozaiği yapmak için milyonlarca minik altın küp kullandı."
+            },
+            {
+                id: 3,
+                word: "Minaret",
+                ipa: "/ˌmɪn.əˈret/",
+                okunus: "mi-nı-ret",
+                tr: "Minare",
+                cat: "Mimari",
+                exEn: "Hagia Sophia has four tall minarets from the Ottoman period.",
+                exOkunus: "hey-ci-a so-fi-ya hez for tol mi-nı-rets from dı o-tı-mın pi-ri-ıd",
+                exTr: "Ayasofya'nın Osmanlı döneminden kalma dört yüksek minaresi vardır."
+            },
+            {
+                id: 4,
+                word: "Emperor",
+                ipa: "/ˈem.pər.ər/",
+                okunus: "em-pı-rır",
+                tr: "İmparator",
+                cat: "Tarih & Din",
+                exEn: "Byzantine Emperor Justinian I ordered this building in 532 AD.",
+                exOkunus: "bi-zan-tin em-pı-rır cas-ti-ni-ın dı först or-dırd dis bil-ding in fayv tör-ti tu ey-di",
+                exTr: "Bizans İmparatoru I. Justinianus M.S. 532 yılında bu binanın yapımını emretti."
+            },
+            {
+                id: 5,
+                word: "Empire",
+                ipa: "/ˈem.paɪər/",
+                okunus: "em-pay-ır",
+                tr: "İmparatorluk",
+                cat: "Tarih & Din",
+                exEn: "This monument served both the Byzantine Empire and the Ottoman Empire.",
+                exOkunus: "dis mon-yu-mınt sörvd bout dı bi-zan-tin em-pay-ır end dı o-tı-mın em-pay-ır",
+                exTr: "Bu anıt hem Bizans İmparatorluğu'na hem de Osmanlı İmparatorluğu'na hizmet etti."
+            },
+            {
+                id: 6,
+                word: "Cathedral",
+                ipa: "/kəˈθiː.drəl/",
+                okunus: "kı-tii-drıl",
+                tr: "Katedral (Büyük Kilise)",
+                cat: "Tarih & Din",
+                exEn: "For nearly a thousand years, it was the largest cathedral in the world.",
+                exOkunus: "for niır-li ı tau-zınd yiırz, it voz dı lar-cıst kı-tii-drıl in dı vörld",
+                exTr: "Yaklaşık bin yıl boyunca dünyanın en büyük katedraliydi."
+            },
+            {
+                id: 7,
+                word: "Mosque",
+                ipa: "/mɒsk/",
+                okunus: "mosk",
+                tr: "Cami",
+                cat: "Tarih & Din",
+                exEn: "Today, Hagia Sophia is an active mosque open to visitors.",
+                exOkunus: "tu-dey, hey-ci-a so-fi-ya iz en ek-tiv mosk o-pın tu vi-zi-tırz",
+                exTr: "Bugün Ayasofya ziyaretçilere açık olan aktif bir camidir."
+            },
+            {
+                id: 8,
+                word: "Museum",
+                ipa: "/mjuːˈziː.əm/",
+                okunus: "myu-zii-ım",
+                tr: "Müze",
+                cat: "Tarih & Din",
+                exEn: "Hagia Sophia served as a museum between 1935 and 2020.",
+                exOkunus: "hey-ci-a so-fi-ya sörvd ez ı myu-zii-ım bit-viin nayn-tiin tör-ti fayv end tven-ti tven-ti",
+                exTr: "Ayasofya 1935 ile 2020 yılları arasında müze olarak hizmet verdi."
+            },
+            {
+                id: 9,
+                word: "Architecture",
+                ipa: "/ˈɑːr.kɪ.tek.tʃər/",
+                okunus: "ar-ki-tek-çır",
+                tr: "Mimari / Mimarlık",
+                cat: "Mimari",
+                exEn: "Hagia Sophia changed the history of world architecture forever.",
+                exOkunus: "hey-ci-a so-fi-ya çeyncd dı his-tı-ri ov vörld ar-ki-tek-çır for-e-vır",
+                exTr: "Ayasofya dünya mimarlık tarihini sonsuza dek değiştirdi."
+            },
+            {
+                id: 10,
+                word: "Column / Pillar",
+                ipa: "/ˈkɒl.əm/ • /ˈpɪl.ər/",
+                okunus: "ko-lım / pi-lır",
+                tr: "Sütun / Direk",
+                cat: "Mimari",
+                exEn: "There are more than one hundred ancient columns inside the building.",
+                exOkunus: "der ar mor den van han-drıd eyn-şınt ko-lımz in-sayd dı bil-ding",
+                exTr: "Binanın içinde yüzden fazla antik sütun bulunmaktadır."
+            },
+            {
+                id: 11,
+                word: "Marble",
+                ipa: "/ˈmɑːr.bəl/",
+                okunus: "mar-bıl",
+                tr: "Mermer",
+                cat: "Mimari",
+                exEn: "The walls are covered with colorful marble from Egypt and Greece.",
+                exOkunus: "dı volz ar ka-vırd vid ka-lır-ful mar-bıl from i-cipt end griis",
+                exTr: "Duvarlar Mısır ve Yunanistan'dan gelen renkli mermerlerle kaplıdır."
+            },
+            {
+                id: 12,
+                word: "Calligraphy",
+                ipa: "/kəˈlɪɡ.rə.fi/",
+                okunus: "kı-lig-rı-fi",
+                tr: "Hat Sanatı",
+                cat: "Tarih & Din",
+                exEn: "Golden Islamic calligraphy decorates the main hall and the dome.",
+                exOkunus: "gol-dın is-la-mik kı-lig-rı-fi de-kı-reyts dı meyn hol end dı doum",
+                exTr: "Altın rengi İslam hat sanatı ana salonu ve kubbeyi süsler."
+            },
+            {
+                id: 13,
+                word: "Medallion",
+                ipa: "/məˈdæl.jən/",
+                okunus: "mı-del-yın",
+                tr: "Madalyon / Yuvarlak Hat Levhası",
+                cat: "Mimari",
+                exEn: "Each wooden calligraphy medallion is seven and a half meters wide.",
+                exOkunus: "iiç vu-dın kı-lig-rı-fi mı-del-yın iz se-vın end ı haf mi-tırz vayd",
+                exTr: "Her bir ahşap hat levhası yedi buçuk metre genişliğindedir."
+            },
+            {
+                id: 14,
+                word: "Mihrab",
+                ipa: "/ˈmɪh.rɑːb/",
+                okunus: "mih-rab",
+                tr: "Mihrap (Kıble yönünü gösteren niş)",
+                cat: "Tarih & Din",
+                exEn: "The mihrab in front of us points toward the holy city of Mecca.",
+                exOkunus: "dı mih-rab in frant ov as poynts tu-vord dı hou-li si-ti ov me-ka",
+                exTr: "Önümüzdeki mihrap kutsal şehir Mekke yönünü gösterir."
+            },
+            {
+                id: 15,
+                word: "Minbar / Pulpit",
+                ipa: "/ˈmɪn.bɑːr/ • /ˈpʊl.pɪt/",
+                okunus: "min-bar / pul-pit",
+                tr: "Minber (İmamın hutbe okuduğu merdivenli kürsü)",
+                cat: "Tarih & Din",
+                exEn: "The imam climbs the marble minbar to give the Friday sermon.",
+                exOkunus: "dı i-mam klaymz dı mar-bıl min-bar tu giv dı fray-dey sör-mın",
+                exTr: "İmam Cuma hutbesini vermek için mermer minbere çıkar."
+            },
+            {
+                id: 16,
+                word: "Imperial Door",
+                ipa: "/ɪmˈpɪə.ri.əl dɔːr/",
+                okunus: "im-pi-ri-ıl dor",
+                tr: "İmparatorluk Kapısı",
+                cat: "Mimari",
+                exEn: "Only the Emperor could enter the church through the Imperial Door.",
+                exOkunus: "on-li dı em-pı-rır kud en-tır dı çörç truu dı im-pi-ri-ıl dor",
+                exTr: "Kiliseye İmparatorluk Kapısı'ndan yalnızca İmparator girebilirdi."
+            },
+            {
+                id: 17,
+                word: "Narthex",
+                ipa: "/ˈnɑːr.θeks/",
+                okunus: "nar-teks",
+                tr: "Narteks (Kilise / Cami Giriş Holü)",
+                cat: "Mimari",
+                exEn: "Let's pause in the inner narthex to look at the ceiling mosaics.",
+                exOkunus: "lets poz in dı i-nır nar-teks tu luk et dı sii-ling mo-zey-iks",
+                exTr: "Tavan mozaiklerine bakmak için iç nartekste biraz duralım."
+            },
+            {
+                id: 18,
+                word: "Nave",
+                ipa: "/neɪv/",
+                okunus: "neyv",
+                tr: "Ana Nef (Orta İbadet Alanı)",
+                cat: "Mimari",
+                exEn: "When we step into the central nave, the space feels huge and bright.",
+                exOkunus: "ven vi step in-tu dı sen-trıl neyv, dı speys fiilz hyuuc end brayt",
+                exTr: "Merkezi nefe adım attığımızda alan devasa ve aydınlık hissettirir."
+            },
+            {
+                id: 19,
+                word: "Upper Gallery",
+                ipa: "/ˈʌp.ər ˈɡæl.ər.i/",
+                okunus: "a-pır ge-lı-ri",
+                tr: "Üst Galeri (İmparatoriçe Locası Katı)",
+                cat: "Mimari",
+                exEn: "Foreign tourists visit the upper gallery to see the famous mosaics.",
+                exOkunus: "fo-rın tu-rists vi-zit dı a-pır ge-lı-ri tu sii dı fey-mıs mo-zey-iks",
+                exTr: "Yabancı turistler ünlü mozaikleri görmek için üst galeriyi ziyaret eder."
+            },
+            {
+                id: 20,
+                word: "Chandelier",
+                ipa: "/ˌʃæn.dəˈlɪər/",
+                okunus: "şen-dı-liır",
+                tr: "Avize",
+                cat: "Mimari",
+                exEn: "Low-hanging chandeliers create a warm light above the carpets.",
+                exOkunus: "lou hen-ging şen-dı-liırz kri-eyt ı vorm layt e-bav dı kar-pıts",
+                exTr: "Alçaktan sarkan avizeler halıların üzerinde sıcak bir ışık oluşturur."
+            },
+            {
+                id: 21,
+                word: "Holy Wisdom",
+                ipa: "/ˈhoʊ.li ˈwɪz.dəm/",
+                okunus: "hou-li viz-dım",
+                tr: "Kutsal Bilgelik (Ayasofya'nın anlamı)",
+                cat: "Tarih & Din",
+                exEn: "In Greek, the name Hagia Sophia means Holy Wisdom.",
+                exOkunus: "in griik, dı neym hey-ci-a so-fi-ya miinz hou-li viz-dım",
+                exTr: "Yunancada Ayasofya ismi Kutsal Bilgelik anlamına gelir."
+            },
+            {
+                id: 22,
+                word: "Conquer / Conquest",
+                ipa: "/ˈkɒŋ.kər/ • /ˈkɒŋ.kwest/",
+                okunus: "kon-kır / kon-kvest",
+                tr: "Fethetmek / Fetih",
+                cat: "Tarih & Din",
+                exEn: "Sultan Mehmed II conquered the city in 1453 after a long siege.",
+                exOkunus: "sal-tın meh-med dı se-kınd kon-kırd dı si-ti in for-tiin fif-ti trii af-tır ı long siic",
+                exTr: "Sultan II. Mehmed uzun bir kuşatmanın ardından 1453'te şehri fethetti."
+            },
+            {
+                id: 23,
+                word: "Convert",
+                ipa: "/kənˈvɜːrt/",
+                okunus: "kın-vört",
+                tr: "Dönüştürmek",
+                cat: "Tarih & Din",
+                exEn: "After the conquest, the cathedral was converted into a grand mosque.",
+                exOkunus: "af-tır dı kon-kvest, dı kı-tii-drıl voz kın-vör-tıd in-tu ı grend mosk",
+                exTr: "Fetihten sonra katedral ulu bir camiye dönüştürüldü."
+            },
+            {
+                id: 24,
+                word: "Restore / Restoration",
+                ipa: "/rɪˈstɔːr/ • /ˌres.təˈreɪ.ʃən/",
+                okunus: "ri-stor / res-tı-rey-şın",
+                tr: "Restore Etmek / Restorasyon",
+                cat: "Mimari",
+                exEn: "Ottoman architect Mimar Sinan restored the outer walls in the 16th century.",
+                exOkunus: "o-tı-mın ar-ki-tekt mi-mar si-nan ri-stord dı au-tır volz in dı siks-tiint sen-çu-ri",
+                exTr: "Osmanlı mimarı Mimar Sinan 16. yüzyılda dış duvarları restore etti."
+            },
+            {
+                id: 25,
+                word: "Earthquake",
+                ipa: "/ˈɜːrθ.kweɪk/",
+                okunus: "ört-kveyk",
+                tr: "Deprem",
+                cat: "Tarih & Din",
+                exEn: "Thanks to its flexible mortar, the building survived many strong earthquakes.",
+                exOkunus: "tenks tu its flek-sı-bıl mor-tır, dı bil-ding sör-vayvd me-ni strong ört-kveyks",
+                exTr: "Esnek harcı sayesinde bina pek çok şiddetli depremden sağ çıktı."
+            },
+            {
+                id: 26,
+                word: "Collapse",
+                ipa: "/kəˈlæps/",
+                okunus: "kı-leps",
+                tr: "Çökmek / Yıkılmak",
+                cat: "Tarih & Din",
+                exEn: "The first dome collapsed in 558 AD and was rebuilt higher.",
+                exOkunus: "dı först doum kı-lepst in fayv fif-ti eyt ey-di end voz ri-bilt hay-ır",
+                exTr: "İlk kubbe M.S. 558 yılında çöktü ve daha yüksek şekilde yeniden inşa edildi."
+            },
+            {
+                id: 27,
+                word: "Masterpiece",
+                ipa: "/ˈmæs.tər.piːs/",
+                okunus: "mes-tır-piis",
+                tr: "Başyapıt / Şaheser",
+                cat: "Rehberlik & Tur",
+                exEn: "Every visitor agrees that Hagia Sophia is an unforgettable masterpiece.",
+                exOkunus: "ev-ri vi-zi-tır ı-griiz det hey-ci-a so-fi-ya iz en an-for-ge-tı-bıl mes-tır-piis",
+                exTr: "Her ziyaretçi Ayasofya'nın unutulmaz bir başyapıt olduğunda hemfikirdir."
+            },
+            {
+                id: 28,
+                word: "Sacred",
+                ipa: "/ˈseɪ.krɪd/",
+                okunus: "sey-krid",
+                tr: "Kutsal",
+                cat: "Tarih & Din",
+                exEn: "Please speak quietly because this is a sacred place of worship.",
+                exOkunus: "pliiz spiik kvay-ıt-li bi-koz dis iz ı sey-krid pleys ov vör-şip",
+                exTr: "Lütfen sessiz konuşun çünkü burası kutsal bir ibadet yeridir."
+            },
+            {
+                id: 29,
+                word: "Ceiling",
+                ipa: "/ˈsiː.lɪŋ/",
+                okunus: "sii-ling",
+                tr: "Tavan",
+                cat: "Mimari",
+                exEn: "Look up at the golden ceiling right above the entrance.",
+                exOkunus: "luk ap et dı gol-dın sii-ling rayt e-bav dı en-trıns",
+                exTr: "Girişin tam üzerindeki altın rengi tavana bakın."
+            },
+            {
+                id: 30,
+                word: "Pendentive",
+                ipa: "/penˈden.tɪv/",
+                okunus: "pen-den-tiv",
+                tr: "Pandantif (Kubbeyi taşıyan üçgen geçiş öğesi)",
+                cat: "Mimari",
+                exEn: "Four curved pendentives support the heavy circular dome on a square plan.",
+                exOkunus: "for körvd pen-den-tivz sı-port dı he-vi sör-kyu-lır doum on ı skver plen",
+                exTr: "Dört kavisli pandantif, ağır yuvarlak kubbeyi kare bir plan üzerinde taşır."
+            },
+            {
+                id: 31,
+                word: "Coronation",
+                ipa: "/ˌkɒr.əˈneɪ.ʃən/",
+                okunus: "ko-rı-ney-şın",
+                tr: "Taç Giyme Töreni",
+                cat: "Tarih & Din",
+                exEn: "Byzantine emperors stood on these round marbles during their coronation.",
+                exOkunus: "bi-zan-tin em-pı-rırz stud on diiz raund mar-bılz dyu-ring deır ko-rı-ney-şın",
+                exTr: "Bizans imparatorları taç giyme törenleri sırasında bu yuvarlak mermerlerin üzerinde dururdu."
+            },
+            {
+                id: 32,
+                word: "Inscription / Rune",
+                ipa: "/ɪnˈskrɪp.ʃən/ • /ruːn/",
+                okunus: "in-skrip-şın / ruun",
+                tr: "Yazıt / Rünik Yazı",
+                cat: "Tarih & Din",
+                exEn: "Upstairs, there is a secret Viking inscription carved in runes.",
+                exOkunus: "ap-steırz, der iz ı sii-krıt vay-king in-skrip-şın karvd in ruunz",
+                exTr: "Üst katta rünik harflerle kazınmış gizli bir Viking yazıtı vardır."
+            },
+            {
+                id: 33,
+                word: "Headscarf",
+                ipa: "/ˈhed.skɑːrf/",
+                okunus: "hed-skarf",
+                tr: "Başörtüsü / Eşarp",
+                cat: "Rehberlik & Tur",
+                exEn: "Ladies need to wear a headscarf before entering the prayer hall.",
+                exOkunus: "ley-diiz niid tu veır ı hed-skarf bi-for en-tı-ring dı pre-yır hol",
+                exTr: "Hanımların ibadet salonuna girmeden önce başörtüsü takmaları gerekir."
+            },
+            {
+                id: 34,
+                word: "Shoe rack",
+                ipa: "/ˈʃuː ræk/",
+                okunus: "şuu rek",
+                tr: "Ayakkabılık",
+                cat: "Rehberlik & Tur",
+                exEn: "Please leave your shoes in the numbered shoe racks near the door.",
+                exOkunus: "pliiz liiv yor şuuz in dı nam-bırd şuu reks niır dı dor",
+                exTr: "Lütfen ayakkabılarınızı kapının yanındaki numaralı ayakkabılıklara bırakın."
+            },
+            {
+                id: 35,
+                word: "Meeting point",
+                ipa: "/ˈmiː.tɪŋ pɔɪnt/",
+                okunus: "mii-ting poynt",
+                tr: "Buluşma Noktası",
+                cat: "Rehberlik & Tur",
+                exEn: "Our meeting point is the fountain in the courtyard at eleven o'clock.",
+                exOkunus: "au-ır mii-ting poynt iz dı faun-tın in dı kort-yard et i-le-vın o-klok",
+                exTr: "Buluşma noktamız saat onda avluda yer alan şadırvandır (çeşmedir)."
+            }
+        ];
+
+        // =====================================================
+        // 2. 18 PRACTICAL TOURIST GUIDE PHRASES (3 CATEGORIES x 6)
+        // =====================================================
+        const guidingPhrasesData = [
+            // Category 1: Welcome & Rules (6)
+            {
+                cat: "welcome",
+                catTr: "Karşılama & Kurallar",
+                catEn: "Welcome & Rules",
+                en: "Welcome to Hagia Sophia, one of the greatest masterpieces of world architecture.",
+                okunus: "vel-kım tu hey-ci-a so-fi-ya, van ov dı grey-tıst mes-tır-pii-sız ov vörld ar-ki-tek-çır",
+                tr: "Dünya mimarisinin en büyük başyapıtlarından biri olan Ayasofya'ya hoş geldiniz.",
+                tip: "Grubu dış avluda veya Sultanahmet Meydanı'nda ilk topladığınızda güçlü bir açılış cümlesidir."
+            },
+            {
+                cat: "welcome",
+                catTr: "Karşılama & Kurallar",
+                catEn: "Welcome & Rules",
+                en: "Before we enter the prayer area, please take off your shoes and put them in the shoe racks.",
+                okunus: "bi-for vi en-tır dı pre-yır e-ri-a, pliiz teyk of yor şuuz end put dem in dı şuu reks",
+                tr: "İbadet alanına girmeden önce lütfen ayakkabılarınızı çıkarın ve ayakkabılıklara koyun.",
+                tip: "Raf numarasını unutmamalarını hatırlatmak için 'remember your rack number' ekleyebilirsiniz."
+            },
+            {
+                cat: "welcome",
+                catTr: "Karşılama & Kurallar",
+                catEn: "Welcome & Rules",
+                en: "Ladies, please cover your hair with a headscarf, and everyone should cover their shoulders and knees.",
+                okunus: "ley-diiz, pliiz ka-vır yor heır vid ı hed-skarf, end ev-ri-van şud ka-vır deır şol-dırz end niiz",
+                tr: "Hanımlar lütfen saçlarınızı bir başörtüsüyle örtün; ayrıca herkesin omuz ve dizlerini kapatması gerekmektedir.",
+                tip: "Kıyafet kuralını bilet sırasına girmeden önce söylerseniz kapıda vakit kaybetmezsiniz."
+            },
+            {
+                cat: "welcome",
+                catTr: "Karşılama & Kurallar",
+                catEn: "Welcome & Rules",
+                en: "Since this is an active place of worship, please lower your voice and turn your phone to silent mode.",
+                okunus: "sins dis iz en ek-tiv pleys ov vör-şip, pliiz lou-ır yor voys end törn yor foun tu say-lınt moud",
+                tr: "Burası aktif bir ibadet yeri olduğu için lütfen sesinizi kısın ve telefonunuzu sessize alın.",
+                tip: "Kulaklık sistemi (whisper/headset) kullanıyorsanız bu aşamada kanal numarasını kontrol edin."
+            },
+            {
+                cat: "welcome",
+                catTr: "Karşılama & Kurallar",
+                catEn: "Welcome & Rules",
+                en: "You are free to take pictures without flash, but please do not photograph people while they are praying.",
+                okunus: "yu ar frii tu teyk pik-çırz vid-aut fleş, bat pliiz du not fo-tı-graf pii-pıl vayl dey ar pre-ying",
+                tr: "Flaşsız fotoğraf çekmekte özgürsünüz ancak lütfen namaz kılan kişilerin fotoğrafını çekmeyin.",
+                tip: "Yabancı turistler bu hassasiyeti nazikçe açıkladığınızda çok takdir ederler."
+            },
+            {
+                cat: "welcome",
+                catTr: "Karşılama & Kurallar",
+                catEn: "Welcome & Rules",
+                en: "Can everyone hear me clearly on the audio headset before we move inside?",
+                okunus: "ken ev-ri-van hiır mii kliır-li on dı o-di-yo hed-set bi-for vi muuv in-sayd?",
+                tr: "İçeri geçmeden önce herkes beni kulaklıktan net bir şekilde duyabiliyor mu?",
+                tip: "İçeride kalabalık olacağı için girişten hemen önce ses testi yapmak profesyonel bir alışkanlıktır."
+            },
+
+            // Category 2: History & Architecture (6)
+            {
+                cat: "history",
+                catTr: "Tarih & Mimari Anlatımı",
+                catEn: "History & Architecture",
+                en: "Contrary to popular belief, Hagia Sophia is not named after a saint; it means Holy Wisdom.",
+                okunus: "kon-trı-ri tu pop-yu-lır bi-liif, hey-ci-a so-fi-ya iz not neymd af-tır ı seynt; it miinz hou-li viz-dım",
+                tr: "Yaygın inanışın aksine Ayasofya adını bir azizeden almaz; Kutsal Bilgelik anlamına gelir.",
+                tip: "Turistlerin %80'i Azize Sofya sanır; bu bilgi tur başında harika bir merak uyandırır."
+            },
+            {
+                cat: "history",
+                catTr: "Tarih & Mimari Anlatımı",
+                catEn: "History & Architecture",
+                en: "The monument we see today is actually the third building built on this exact spot in 537 AD.",
+                okunus: "dı mon-yu-mınt vi sii tu-dey iz ek-çu-ı-li dı törd bil-ding bilt on dis ig-zekt spot in fayv tör-ti se-vın ey-di",
+                tr: "Bugün gördüğümüz anıt aslında M.S. 537 yılında tam bu noktaya inşa edilen üçüncü binadır.",
+                tip: "Önceki iki kilisenin ayaklanmalarda yandığını (Nika İsyanı) kısaca ekleyebilirsiniz."
+            },
+            {
+                cat: "history",
+                catTr: "Tarih & Mimari Anlatımı",
+                catEn: "History & Architecture",
+                en: "Let's walk through the Imperial Door, which was used only by the Byzantine Emperor.",
+                okunus: "lets volk truu dı im-pi-ri-ıl dor, viç voz yuzd on-li bay dı bi-zan-tin em-pı-rır",
+                tr: "Yalnızca Bizans İmparatoru tarafından kullanılan İmparatorluk Kapısı'ndan geçelim.",
+                tip: "Kapının üzerindeki İsa ve İmparator VI. Leo mozaiğini tam bu noktada gösterebilirsiniz."
+            },
+            {
+                cat: "history",
+                catTr: "Tarih & Mimari Anlatımı",
+                catEn: "History & Architecture",
+                en: "If you look up at the central dome, you can see forty windows that make the dome look like it is floating.",
+                okunus: "if yu luk ap et dı sen-trıl doum, yu ken sii for-ti vin-douz det meyk dı doum luk layk it iz flou-ting",
+                tr: "Merkezi kubbeye yukarı bakarsanız, kubbeyi havada süzülüyormuş gibi gösteren kırk pencereyi görebilirsiniz.",
+                tip: "Ana nefe ilk adım atılan saniyede herkesin başını yukarı kaldırmasını sağlayın."
+            },
+            {
+                cat: "history",
+                catTr: "Tarih & Mimari Anlatımı",
+                catEn: "History & Architecture",
+                en: "After the conquest of Constantinople in 1453, Sultan Mehmed II converted the cathedral into a mosque.",
+                okunus: "af-tır dı kon-kvest ov kon-sten-ti-nou-pıl in for-tiin fif-ti trii, sal-tın meh-med dı se-kınd kın-vör-tıd dı kı-tii-drıl in-tu ı mosk",
+                tr: "1453'te Konstantinopolis'in fethinden sonra Sultan II. Mehmed katedrali camiye dönüştürdü.",
+                tip: "Mihrabın kıble (Mekke) yönü için hafif sağa dönük yerleştirildiğini hemen ardından gösterebilirsiniz."
+            },
+            {
+                cat: "history",
+                catTr: "Tarih & Mimari Anlatımı",
+                catEn: "History & Architecture",
+                en: "Notice how Christian golden mosaics and Ottoman calligraphy medallions stand together under one dome.",
+                okunus: "nou-tis hau kris-çın gol-dın mo-zey-iks end o-tı-mın kı-lig-rı-fi mı-del-yınz stend tu-ge-dır an-dır van doum",
+                tr: "Hristiyan altın mozaikleri ile Osmanlı hat madalyonlarının tek bir kubbe altında nasıl bir arada durduğuna dikkat edin.",
+                tip: "Doğu ve Batı sentezini vurgulamak için en etkileyici özet cümlelerden biridir."
+            },
+
+            // Category 3: Directions & Free Time (6)
+            {
+                cat: "directions",
+                catTr: "Yönlendirme & Serbest Zaman",
+                catEn: "Directions & Free Time",
+                en: "Please watch your step; the ancient marble floor and stone ramps can be quite slippery.",
+                okunus: "pliiz voç yor step; dı eyn-şınt mar-bıl flor end stoun remps ken bii kvayt sli-pı-ri",
+                tr: "Lütfen adımlarınıza dikkat edin; antik mermer zemin ve taş rampalar oldukça kaygan olabilir.",
+                tip: "Özellikle Üst Galeri'ye çıkan taş rampada yaşlı misafirleri mutlaka uyarın."
+            },
+            {
+                cat: "directions",
+                catTr: "Yönlendirme & Serbest Zaman",
+                catEn: "Directions & Free Time",
+                en: "Follow me up the stone ramp to the Upper Gallery for a closer view of the mosaics.",
+                okunus: "fo-lou mii ap dı stoun remp tu dı a-pır ge-lı-ri for ı klou-sır vyuu ov dı mo-zey-iks",
+                tr: "Mozaikleri daha yakından görmek için taş rampadan Üst Galeri'ye doğru beni takip edin.",
+                tip: "Rampanın merdivensiz olmasının sebebinin İmparatoriçe'nin tahtırevanla taşınması olduğunu anlatabilirsiniz."
+            },
+            {
+                cat: "directions",
+                catTr: "Yönlendirme & Serbest Zaman",
+                catEn: "Directions & Free Time",
+                en: "On your left-hand side, you can see the famous Deesis mosaic from the 13th century.",
+                okunus: "on yor left hend sayd, yu ken sii dı fey-mıs de-i-sis mo-zey-ik from dı tör-tiint sen-çu-ri",
+                tr: "Sol tarafınızda 13. yüzyıldan kalma ünlü Deisis mozaiğini görebilirsiniz.",
+                tip: "Yön verirken 'on your left / on your right / straight ahead' kalıplarını el işaretiyle destekleyin."
+            },
+            {
+                cat: "directions",
+                catTr: "Yönlendirme & Serbest Zaman",
+                catEn: "Directions & Free Time",
+                en: "Let's step aside for a moment so we don't block the narrow passageway for other visitors.",
+                okunus: "lets step ı-sayd for ı mou-mınt sou vi dount blok dı ne-rou pe-sic-vey for a-dır vi-zi-tırz",
+                tr: "Diğer ziyaretçiler için dar geçiş yolunu kapatmamak adına bir dakikalığına kenara çekilelim.",
+                tip: "Yoğun sezonlarda grup yönetimi ve diğer rehberlerle uyum için çok kibar bir yönlendirmedir."
+            },
+            {
+                cat: "directions",
+                catTr: "Yönlendirme & Serbest Zaman",
+                catEn: "Directions & Free Time",
+                en: "We will have twenty minutes of free time for photos, and our meeting point is right outside the exit gate.",
+                okunus: "vi vil hev tven-ti mi-nits ov frii taym for fo-touz, end au-ır mii-ting poynt iz rayt aut-sayd dı eg-zit geyt",
+                tr: "Fotoğraf için yirmi dakika serbest zamanımız olacak ve buluşma noktamız çıkış kapısının hemen dışıdır.",
+                tip: "Saati hem 'twenty minutes' hem de net saat olarak (ör. 'at 11:30') söylemek gecikmeleri önler."
+            },
+            {
+                cat: "directions",
+                catTr: "Yönlendirme & Serbest Zaman",
+                catEn: "Directions & Free Time",
+                en: "Does anyone have any questions before we walk across the square to the Blue Mosque?",
+                okunus: "daz e-ni-van hev e-ni kves-çınz bi-for vi volk ı-kros dı skver tu dı bluu mosk?",
+                tr: "Meydanın karşısındaki Sultanahmet Camii'ne yürümeden önce sorusu olan var mı?",
+                tip: "Bir sonraki durağa geçiş bağlantısı kurmak grubun motivasyonunu canlı tutar."
+            }
+        ];
+
+        // =====================================================
+        // 3. READING PASSAGE (5 PARAGRAPHS + PRONUNCIATION + 5 QUESTIONS)
+        // =====================================================
+        const readingParagraphs = [
+            {
+                num: 1,
+                heading: "1. The Birth of Holy Wisdom (537 AD)",
+                rawEn: "Located in the historic heart of Istanbul, Hagia Sophia is one of the most famous monuments in the world. Its name comes from Greek and means Holy Wisdom. Two earlier churches on this spot burned down during city riots. In 532 AD, Byzantine Emperor Justinian I decided to build a grand cathedral larger than any building before it. Two brilliant mathematicians led ten thousand workers and completed this masterpiece in only five years and ten months, opening its doors in 537 AD.",
+                htmlEn: `Located in the historic heart of Istanbul, Hagia Sophia is one of the most famous monuments in the world. Its name comes from Greek and means <span class="vocab-inline" onclick="openInlineVocab(21)">Holy Wisdom</span>. Two earlier churches on this spot burned down during city riots. In 532 AD, Byzantine <span class="vocab-inline" onclick="openInlineVocab(4)">Emperor</span> Justinian I decided to build a grand <span class="vocab-inline" onclick="openInlineVocab(6)">cathedral</span> larger than any building before it. Two brilliant mathematicians led ten thousand workers and completed this <span class="vocab-inline" onclick="openInlineVocab(27)">masterpiece</span> in only five years and ten months, opening its doors in 537 AD.`,
+                okunus: "lo-key-tıd in dı his-to-rik hart ov is-tan-bul, hey-ci-a so-fi-ya iz van ov dı moust fey-mıs mon-yu-mınts in dı vörld. its neym kamz from griik end miinz hou-li viz-dım. tuu ör-li-ır çör-çız on dis spot börnd daun dyu-ring si-ti ray-ıts. in fayv tör-ti tuu ey-di, bi-zan-tin em-pı-rır cas-ti-ni-ın dı först di-say-dıd tu bild ı grend kı-tii-drıl lar-cır den e-ni bil-ding bi-for it. tuu bril-yınt me-tı-mı-ti-şınz led ten tau-zınd vör-kırz end kım-plii-tıd dis mes-tır-piis in on-li fayv yiırz end ten mants, o-pı-ning its dorz in fayv tör-ti se-vın ey-di.",
+                tr: "İstanbul'un tarihi kalbinde yer alan Ayasofya, dünyanın en ünlü anıtlarından biridir. Adı Yunancadan gelir ve Kutsal Bilgelik anlamını taşır. Bu noktadaki daha eski iki kilise şehir ayaklanmaları sırasında yanmıştı. M.S. 532 yılında Bizans İmparatoru I. Justinianus, kendisinden önceki tüm yapılardan daha büyük görkemli bir katedral inşa etmeye karar verdi. İki parlak matematikçi on bin işçiye liderlik etti ve bu başyapıtı yalnızca beş yıl on ayda tamamlayarak M.S. 537'de kapılarını açtı."
+            },
+            {
+                num: 2,
+                heading: "2. The Architectural Miracle of the Central Dome",
+                rawEn: "When visitors pass through the Narthex and the Imperial Door into the central nave, they immediately look up at the massive dome. Supported by four triangular pendentives, the dome rises 55.6 meters above the floor. Although a strong earthquake caused the first dome to collapse in 558 AD, architects quickly rebuilt it higher and stronger. Inside, colorful marble walls and ancient columns brought from cities like Ephesus create a breathtaking sacred space.",
+                htmlEn: `When visitors pass through the <span class="vocab-inline" onclick="openInlineVocab(17)">Narthex</span> and the <span class="vocab-inline" onclick="openInlineVocab(16)">Imperial Door</span> into the central <span class="vocab-inline" onclick="openInlineVocab(18)">nave</span>, they immediately look up at the massive <span class="vocab-inline" onclick="openInlineVocab(1)">dome</span>. Supported by four triangular <span class="vocab-inline" onclick="openInlineVocab(30)">pendentives</span>, the dome rises 55.6 meters above the floor. Although a strong <span class="vocab-inline" onclick="openInlineVocab(25)">earthquake</span> caused the first dome to <span class="vocab-inline" onclick="openInlineVocab(26)">collapse</span> in 558 AD, architects quickly rebuilt it higher and stronger. Inside, colorful <span class="vocab-inline" onclick="openInlineVocab(11)">marble</span> walls and ancient <span class="vocab-inline" onclick="openInlineVocab(10)">columns</span> brought from cities like Ephesus create a breathtaking <span class="vocab-inline" onclick="openInlineVocab(28)">sacred</span> space.`,
+                okunus: "ven vi-zi-tırz pes truu dı nar-teks end dı im-pi-ri-ıl dor in-tu dı sen-trıl neyv, dey i-mii-di-ıt-li luk ap et dı me-siv doum. sı-por-tıd bay for tray-en-gyu-lır pen-den-tivz, dı doum ray-zız fif-ti fayv poynt siks mi-tırz e-bav dı flor. ol-dou ı strong ört-kveyk kozd dı först doum tu kı-leps in fayv fif-ti eyt ey-di, ar-ki-tekts kvik-li ri-bilt it hay-ır end stron-gır. in-sayd, ka-lır-ful mar-bıl volz end eyn-şınt ko-lımz broot from si-tiiz layk e-fı-sıs kri-eyt ı bret-tey-king sey-krid speys.",
+                tr: "Ziyaretçiler Narteks ve İmparatorluk Kapısı'ndan geçerek orta nefe girdiklerinde hemen devasa kubbeye bakarlar. Dört üçgen pandantifle desteklenen kubbe, zeminden 55,6 metre yükselir. Şiddetli bir deprem M.S. 558'de ilk kubbenin çökmesine neden olsa da mimarlar onu hızla daha yüksek ve daha sağlam biçimde yeniden inşa etti. İçerideki renkli mermer duvarlar ve Efes gibi antik şehirlerden getirilen sütunlar nefes kesici kutsal bir alan yaratır."
+            },
+            {
+                num: 3,
+                heading: "3. The 1453 Conquest and the Ottoman Mosque",
+                rawEn: "A new era started in 1453 with the conquest of Constantinople by Ottoman Sultan Mehmed II, known as Mehmed the Conqueror. Deeply admiring its architecture, the Sultan protected the building and converted it into an imperial mosque. Over the centuries, Ottoman sultans added four minarets, a mihrab facing Mecca, and a marble minbar. In the 16th century, Chief Architect Mimar Sinan restored the building, and in the 19th century, eight giant wooden calligraphy medallions were hung in the nave.",
+                htmlEn: `A new era started in 1453 with the <span class="vocab-inline" onclick="openInlineVocab(22)">conquest</span> of Constantinople by Ottoman Sultan Mehmed II, known as Mehmed the Conqueror. Deeply admiring its <span class="vocab-inline" onclick="openInlineVocab(9)">architecture</span>, the Sultan protected the building and <span class="vocab-inline" onclick="openInlineVocab(23)">converted</span> it into an imperial <span class="vocab-inline" onclick="openInlineVocab(7)">mosque</span>. Over the centuries, Ottoman sultans added four <span class="vocab-inline" onclick="openInlineVocab(3)">minarets</span>, a <span class="vocab-inline" onclick="openInlineVocab(14)">mihrab</span> facing Mecca, and a marble <span class="vocab-inline" onclick="openInlineVocab(15)">minbar</span>. In the 16th century, Chief Architect Mimar Sinan <span class="vocab-inline" onclick="openInlineVocab(24)">restored</span> the building, and in the 19th century, eight giant wooden <span class="vocab-inline" onclick="openInlineVocab(12)">calligraphy</span> <span class="vocab-inline" onclick="openInlineVocab(13)">medallions</span> were hung in the nave.`,
+                okunus: "ı nyuu e-ra star-tıd in for-tiin fif-ti trii vid dı kon-kvest ov kon-sten-ti-nou-pıl bay o-tı-mın sal-tın meh-med dı se-kınd, noun ez meh-med dı kon-kı-rır. diip-li ed-may-ring its ar-ki-tek-çır, dı sal-tın prı-tek-tıd dı bil-ding end kın-vör-tıd it in-tu en im-pi-ri-ıl mosk. o-vır dı sen-çu-riz, o-tı-mın sal-tınz e-dıd for mi-nı-rets, ı mih-rab fey-sing me-ka, end ı mar-bıl min-bar. in dı siks-tiint sen-çu-ri, çiif ar-ki-tekt mi-mar si-nan ri-stord dı bil-ding, end in dı nayn-tiint sen-çu-ri, eyt cay-ınt vu-dın kı-lig-rı-fi mı-del-yınz vör hang in dı neyv.",
+                tr: "1453 yılında Fatih Sultan Mehmed olarak bilinen Osmanlı Padişahı II. Mehmed'in Konstantinopolis'i fethiyle yeni bir dönem başladı. Mimarisine büyük bir hayranlık duyan Padişah binayı koruma altına aldı ve bir imparatorluk camisine dönüştürdü. Yüzyıllar içinde Osmanlı padişahları dört minare, Mekke'ye bakan bir mihrap ve mermer bir minber ekledi. 16. yüzyılda Başmimar Mimar Sinan yapıyı restore etti ve 19. yüzyılda ana nefe sekiz dev ahşap hat madalyonu asıldı."
+            },
+            {
+                num: 4,
+                heading: "4. From Museum Back to Grand Mosque",
+                rawEn: "In 1935, under the leadership of Mustafa Kemal Ataturk, the founder of modern Türkiye, Hagia Sophia opened to the public as a museum. During restoration works, experts carefully uncovered glittering Byzantine golden mosaics that had been covered with plaster for centuries. Visitors from every continent marveled at Christian mosaics and Islamic art side by side. Later, in July 2020, Hagia Sophia was officially reopened for worship as a mosque once again.",
+                htmlEn: `In 1935, under the leadership of Mustafa Kemal Ataturk, the founder of modern Türkiye, Hagia Sophia opened to the public as a <span class="vocab-inline" onclick="openInlineVocab(8)">museum</span>. During restoration works, experts carefully uncovered glittering Byzantine golden <span class="vocab-inline" onclick="openInlineVocab(2)">mosaics</span> that had been covered with plaster for centuries. Visitors from every continent marveled at Christian mosaics and Islamic art side by side. Later, in July 2020, Hagia Sophia was officially reopened for worship as a mosque once again.`,
+                okunus: "in nayn-tiin tör-ti fayv, an-dır dı lii-dır-şip ov mus-ta-fa ke-mal a-ta-türk, dı faun-dır ov mo-dırn tür-ki-ye, hey-ci-a so-fi-ya o-pınd tu dı pab-lik ez ı myu-zii-ım. dyu-ring res-tı-rey-şın vörks, eks-pörts ker-fu-li an-ka-vırd gli-tı-ring bi-zan-tin gol-dın mo-zey-iks det hed biin ka-vırd vid ples-tır for sen-çu-riz. vi-zi-tırz from ev-ri kon-ti-nınt mar-vıld et kris-çın mo-zey-iks end is-la-mik art sayd bay sayd. ley-tır, in cu-lay tven-ti tven-ti, hey-ci-a so-fi-ya voz o-fi-şı-li ri-o-pınd for vör-şip ez ı mosk vans ı-gen.",
+                tr: "1935 yılında modern Türkiye'nin kurucusu Mustafa Kemal Atatürk'ün öncülüğünde Ayasofya müze olarak halkın ziyaretine açıldı. Restorasyon çalışmaları sırasında uzmanlar yüzyıllardır sıva altında kalmış ışıltılı Bizans altın mozaiklerini özenle gün yüzüne çıkardı. Her kıtadan ziyaretçi Hristiyan mozaikleri ile İslam sanatını yan yana hayranlıkla izledi. Daha sonra Temmuz 2020'de Ayasofya resmen yeniden cami olarak ibadete açıldı."
+            },
+            {
+                num: 5,
+                heading: "5. Visiting Hagia Sophia Today",
+                rawEn: "Today, millions of people visit Hagia Sophia every year to experience nearly 1,500 years of living history. Worshippers pray on the soft carpets under low chandeliers on the ground floor, where ladies wear a headscarf and visitors use the shoe racks. Meanwhile, cultural tourists walk up to the Upper Gallery to admire imperial mosaics, Viking runes, and a magnificent view of the nave where East and West truly meet.",
+                htmlEn: `Today, millions of people visit Hagia Sophia every year to experience nearly 1,500 years of living history. Worshippers pray on the soft carpets under low <span class="vocab-inline" onclick="openInlineVocab(20)">chandeliers</span> on the ground floor, where ladies wear a <span class="vocab-inline" onclick="openInlineVocab(33)">headscarf</span> and visitors use the <span class="vocab-inline" onclick="openInlineVocab(34)">shoe racks</span>. Meanwhile, cultural tourists walk up to the <span class="vocab-inline" onclick="openInlineVocab(19)">Upper Gallery</span> to admire imperial mosaics, Viking <span class="vocab-inline" onclick="openInlineVocab(32)">runes</span>, and a magnificent view of the nave where East and West truly meet.`,
+                okunus: "tu-dey, mil-yınz ov pii-pıl vi-zit hey-ci-a so-fi-ya ev-ri yiır tu iks-pi-ri-ıns niır-li van tau-zınd fayv han-drıd yiırz ov li-ving his-tı-ri. vör-şi-pırz prey on dı soft kar-pıts an-dır lou şen-dı-liırz on dı graund flor, ver ley-diiz veır ı hed-skarf end vi-zi-tırz yuuz dı şuu reks. miin-vayl, kal-çı-rıl tu-rists volk ap tu dı a-pır ge-lı-ri tu ed-may-ır im-pi-ri-ıl mo-zey-iks, vay-king ruunz, end ı meg-ni-fi-sınt vyuu ov dı neyv ver iist end vest truu-li miit.",
+                tr: "Bugün her yıl milyonlarca insan yaklaşık 1.500 yıllık yaşayan tarihi deneyimlemek için Ayasofya'yı ziyaret etmektedir. İbadet edenler giriş katta alçak avizelerin altındaki yumuşak halılarda namaz kılarken hanımlar başörtüsü takar ve ziyaretçiler ayakkabılıkları kullanır. Bu sırada kültür turistleri imparatorluk mozaiklerini, Viking rünik yazılarını ve Doğu ile Batı'nın gerçekten buluştuğu ana nefin muhteşem manzarasını izlemek için Üst Galeri'ye çıkarlar."
+            }
+        ];
+
+        const readingCompData = [
+            {
+                q: "1. How long did it take to build Emperor Justinian's Hagia Sophia in the 6th century?",
+                options: [
+                    "Over 150 years",
+                    "Only 5 years and 10 months",
+                    "Exactly 50 years"
+                ],
+                correct: 1,
+                explanation: "1. paragrafta belirtildiği gibi 10.000 işçiyle sadece 5 yıl 10 ayda tamamlanıp M.S. 537'de açılmıştır."
+            },
+            {
+                q: "2. True or False: The first dome of Hagia Sophia never collapsed during earthquakes.",
+                options: [
+                    "True (Doğru)",
+                    "False (Yanlış)"
+                ],
+                correct: 1,
+                explanation: "Yanlış (False)! M.S. 558 yılındaki depremde ilk kubbe çökmüş ve ardından daha yüksek şekilde yeniden inşa edilmiştir."
+            },
+            {
+                q: "3. Where did builders bring some of the ancient columns from?",
+                options: [
+                    "Ancient cities like Ephesus",
+                    "Northern Viking villages",
+                    "Modern European museums"
+                ],
+                correct: 0,
+                explanation: "2. paragrafta belirtildiği üzere Efes (Ephesus) gibi antik şehirlerden sütunlar getirilmiştir."
+            },
+            {
+                q: "4. Who restored Hagia Sophia in the 16th century and strengthened it?",
+                options: [
+                    "Isidore of Miletus",
+                    "Chief Architect Mimar Sinan",
+                    "Emperor Justinian I"
+                ],
+                correct: 1,
+                explanation: "16. yüzyılda Osmanlı Başmimarı Mimar Sinan binayı restore edip güçlendirmiştir."
+            },
+            {
+                q: "5. During which period did Hagia Sophia serve as a museum?",
+                options: [
+                    "From 537 to 1453",
+                    "From 1453 to 1923",
+                    "From 1935 to 2020"
+                ],
+                correct: 2,
+                explanation: "4. paragrafta anlatıldığı gibi 1935'ten Temmuz 2020'ye kadar müze olarak hizmet vermiştir."
+            }
+        ];
+
+        // =====================================================
+        // 4. REALISTIC TOURIST-GUIDE DIALOGUE (14 LINES)
+        // =====================================================
+        const dialogueData = [
+            {
+                speaker: "Guide Kerem",
+                role: "guide",
+                pitch: 1.0,
+                en: "Good morning, everyone! Welcome to Sultanahmet Square. Right behind me stands Hagia Sophia, which has watched over Istanbul for almost 1,500 years.",
+                okunus: "gud mor-ning ev-ri-van! vel-kım tu sul-tan-ah-met skver. rayt bi-haynd mii stendz hey-ci-a so-fi-ya, viç hez voçt o-vır is-tan-bul for ol-moust van tau-zınd fayv han-drıd yiırz.",
+                tr: "Herkese günaydın! Sultanahmet Meydanı'na hoş geldiniz. Tam arkamda neredeyse 1.500 yıldır İstanbul'u izleyen Ayasofya yükseliyor."
+            },
+            {
+                speaker: "Sarah (UK)",
+                role: "sarah",
+                pitch: 1.18,
+                en: "Good morning, Kerem! It looks much bigger in person than in photos! Do we need to prepare anything before going inside?",
+                okunus: "gud mor-ning ke-rem! it luks maç bi-gır in pör-sın den in fo-touz! du vi niid tu pri-peır e-ni-ting bi-for gou-ing in-sayd?",
+                tr: "Günaydın Kerem! Yakından fotoğraflardakinden çok daha büyük görünüyor! İçeri girmeden önce hazırlamamız gereken bir şey var mı?"
+            },
+            {
+                speaker: "Guide Kerem",
+                role: "guide",
+                pitch: 1.0,
+                en: "Great question, Sarah! Because it is an active mosque, ladies should put on a headscarf. If we enter the carpeted prayer area, we also place our shoes in the numbered shoe racks.",
+                okunus: "greyt kves-çın se-ra! bi-koz it iz en ek-tiv mosk, ley-diiz şud put on ı hed-skarf. if vi en-tır dı kar-pı-tıd pre-yır e-ri-a, vi ol-sou pleys au-ır şuuz in dı nam-bırd şuu reks.",
+                tr: "Harika soru Sarah! Aktif bir cami olduğu için hanımların başörtüsü takması gerekiyor. Halı kaplı ibadet alanına girersek ayakkabılarımızı da numaralı ayakkabılıklara bırakıyoruz."
+            },
+            {
+                speaker: "Marco (Italy)",
+                role: "marco",
+                pitch: 0.9,
+                en: "Got it! I am wearing long trousers, and Sarah has her scarf ready. Which gate are we walking through now?",
+                okunus: "gat it! ay em ve-ring long trau-zırz, end se-ra hez hör skarf re-di. viç geyt ar vi vol-king truu nau?",
+                tr: "Anlaşıldı! Ben uzun pantolon giyiyorum, Sarah'nın da eşarbı hazır. Şimdi hangi kapıdan geçiyoruz?"
+            },
+            {
+                speaker: "Guide Kerem",
+                role: "guide",
+                pitch: 1.0,
+                en: "First, we enter the Narthex, the long entrance hall. Look right above this huge middle doorway—this is the famous Imperial Door, once reserved only for the Emperor!",
+                okunus: "först, vi en-tır dı nar-teks, dı long en-trıns hol. luk rayt e-bav dis hyuuc mi-dıl dor-vey—dis iz dı fey-mıs im-pi-ri-ıl dor, vans ri-zörvd on-li for dı em-pı-rır!",
+                tr: "Önce uzun giriş holü olan Narteks'e giriyoruz. Bu devasa orta kapının tam üzerine bakın; burası bir zamanlar yalnızca İmparator'a ayrılmış olan ünlü İmparatorluk Kapısı'dır!"
+            },
+            {
+                speaker: "Sarah (UK)",
+                role: "sarah",
+                pitch: 1.18,
+                en: "Oh, look at the golden mosaic above the door! Who is the ruler kneeling in front of Jesus?",
+                okunus: "ou, luk et dı gol-dın mo-zey-ik e-bav dı dor! huu iz dı ruu-lır nii-ling in frant ov cii-zıs?",
+                tr: "Aa, kapının üzerindeki altın mozaiğe bakın! Hz. İsa'nın önünde diz çöken hükümdar kim?"
+            },
+            {
+                speaker: "Guide Kerem",
+                role: "guide",
+                pitch: 1.0,
+                en: "That is Byzantine Emperor Leo VI asking for wisdom and forgiveness. Now step inside the main nave and look straight up at the ceiling!",
+                okunus: "det iz bi-zan-tin em-pı-rır li-ou dı sikst es-king for viz-dım end for-giv-nıs. nau step in-sayd dı meyn neyv end luk streyt ap et dı sii-ling!",
+                tr: "O kişi bilgelik ve af dileyen Bizans İmparatoru VI. Leo'dur. Şimdi ana nefin içine adım atın ve doğrudan tavana bakın!"
+            },
+            {
+                speaker: "Marco (Italy)",
+                role: "marco",
+                pitch: 0.9,
+                en: "Unbelievable! The central dome looks so light, and the low chandeliers give such a peaceful atmosphere. How old are the mosaics inside here?",
+                okunus: "an-bi-lii-vı-bıl! dı sen-trıl doum luks sou layt, end dı lou şen-dı-liırz giv saç ı piis-ful et-mıs-fiır. hau old ar dı mo-zey-iks in-sayd hiır?",
+                tr: "İnanılmaz! Merkezi kubbe çok hafif görünüyor ve alçak avizeler çok huzurlu bir atmosfer veriyor. Buradaki mozaikler kaç yaşında?"
+            },
+            {
+                speaker: "Guide Kerem",
+                role: "guide",
+                pitch: 1.0,
+                en: "Some geometric patterns date back to the 6th century, while the figurative mosaics—like the Virgin Mary and the Deesis—were made between the 9th and 13th centuries.",
+                okunus: "sam ci-o-met-rik pe-tırnz deyt bek tu dı sikst sen-çu-ri, vayl dı fig-yu-rı-tiv mo-zey-iks—layk dı vör-cin me-ri end dı de-i-sis—vör meyd bit-viin dı naynt end tör-tiint sen-çu-riz.",
+                tr: "Bazı geometrik desenler 6. yüzyıla uzanırken, Meryem Ana ve Deisis gibi figürlü mozaikler 9. ile 13. yüzyıllar arasında yapılmıştır."
+            },
+            {
+                speaker: "Sarah (UK)",
+                role: "sarah",
+                pitch: 1.18,
+                en: "And what about those enormous round black shields with gold Arabic writing? They look huge!",
+                okunus: "end vot ı-baut douz i-nor-mıs raund blek şiildz vid gold e-rı-bik ray-ting? dey luk hyuuc!",
+                tr: "Peki ya altın rengi Arapça yazılı şu devasa yuvarlak siyah levhalar nedir? Çok büyük görünüyorlar!"
+            },
+            {
+                speaker: "Guide Kerem",
+                role: "guide",
+                pitch: 1.0,
+                en: "Those are 19th-century calligraphy medallions, each 7.5 meters wide! They show the names of Allah, Prophet Muhammad, the four Caliphs, and his grandsons Hasan and Husayn.",
+                okunus: "douz ar nayn-tiint sen-çu-ri kı-lig-rı-fi mı-del-yınz, iiç se-vın poynt fayv mi-tırz vayd! dey şou dı neymz ov al-lah, pro-fıt mu-ham-med, dı for key-lifs, end hiz grend-sanz ha-san end hü-se-yin.",
+                tr: "Onlar her biri 7,5 metre genişliğinde olan 19. yüzyıl hat madalyonlarıdır! Allah, Hz. Muhammed, dört Halife ve Peygamber'in torunları Hz. Hasan ile Hz. Hüseyin'in isimlerini taşırlar."
+            },
+            {
+                speaker: "Marco (Italy)",
+                role: "marco",
+                pitch: 0.9,
+                en: "Kerem, I read in my guidebook about a famous 'Wishing Column' that cures headaches. Is that true?",
+                okunus: "ke-rem, ay red in may gayd-buk ı-baut ı fey-mıs vi-şing ko-lım det kyuırz he-deyks. iz det truu?",
+                tr: "Kerem, rehber kitabımda baş ağrısını iyileştiren ünlü bir 'Dilek Sütunu' (Terleyen Direk) okudum. Bu doğru mu?"
+            },
+            {
+                speaker: "Guide Kerem",
+                role: "guide",
+                pitch: 1.0,
+                en: "Haha, that's the local legend! Over in the northwest corner, there is a bronze-covered damp marble pillar with a thumb hole. For centuries, visitors turned their thumb clockwise in it to make a wish!",
+                okunus: "ha-ha, dets dı lou-kıl le-cınd! o-vır in dı nort-vest kor-nır, der iz ı bronz ka-vırd demp mar-bıl pi-lır vid ı tam houl. for sen-çu-riz, vi-zi-tırz törnd deır tam klok-vayz in it tu meyk ı viş!",
+                tr: "Haha, yerel efsane tam olarak öyle! Kuzeybatı köşede başparmak deliği olan bronz kaplı nemli bir mermer sütun var. Yüzyıllar boyunca ziyaretçiler dilek tutmak için başparmaklarını içinde saat yönünde çevirdi!"
+            },
+            {
+                speaker: "Guide Kerem",
+                role: "guide",
+                pitch: 1.0,
+                en: "Now let's head up to the Upper Gallery together! Afterward, you will have twenty minutes for photos, and our meeting point is the courtyard fountain at 11:30.",
+                okunus: "nau lets hed ap tu dı a-pır ge-lı-ri tu-ge-dır! af-tır-vırd, yu vil hev tven-ti mi-nits for fo-touz, end au-ır mii-ting poynt iz dı kort-yard faun-tın et i-le-vın tör-ti.",
+                tr: "Şimdi birlikte Üst Galeri'ye çıkalım! Sonrasında fotoğraf için yirmi dakikanız olacak ve buluşma noktamız saat 11:30'da avludaki şadırvan."
+            }
+        ];
+
+        // =====================================================
+        // 5. 8 INTERESTING FACTS ABOUT HAGIA SOPHIA (NO 'İ' IN ENGLISH!)
+        // =====================================================
+        const interestingFactsData = [
+            {
+                num: "01",
+                icon: "fa-bolt",
+                title: "Built in Only Five Years!",
+                en: "Medieval cathedrals in Europe often took more than a hundred years to finish, yet Hagia Sophia was built in just five years and ten months! Emperor Justinian hired two brilliant scientists, Isidore of Miletus and Anthemius of Tralles, instead of ordinary builders. Two rival teams of five thousand workers competed day and night to complete it in 537 AD.",
+                okunus: "mi-dii-vıl kı-tii-drılz in yu-rıp o-fın tuk mor den ı han-drıd yiırz tu fi-niş, yet hey-ci-a so-fi-ya voz bilt in cast fayv yiırz end ten mants! em-pı-rır cas-ti-ni-ın hay-ırd tuu bril-yınt say-ın-tists, i-zi-dor ov may-lii-tıs end en-tii-mi-ıs ov tre-liiz, in-sted ov or-di-ne-ri bil-dırz. tuu ray-vıl tiimz ov fayv tau-zınd vör-kırz kım-pii-tıd dey end nayt tu kım-pliit it in fayv tör-ti se-vın ey-di.",
+                tr: "Avrupa'daki Orta Çağ katedrallerinin bitmesi çoğu zaman yüz yıldan uzun sürerken Ayasofya yalnızca 5 yıl 10 ayda inşa edildi! İmparator Justinianus sıradan inşaatçılar yerine Miletoslu İsidoros ve Trallesli Anthemius adlı iki parlak bilim insanını görevlendirdi. Beşer bin kişilik iki rakip ekip gece gündüz yarışarak yapıyı M.S. 537'de tamamladı."
+            },
+            {
+                num: "02",
+                icon: "fa-shield-halved",
+                title: "The Viking Graffiti: 'Halvdan Was Here'",
+                en: "On a marble parapet in the southern Upper Gallery, you can spot secret 9th-century Viking runes! Viking warriors worked in Constantinople as elite bodyguards for the Byzantine Emperor. One bored soldier carved a runic inscription into the marble, and experts translate the readable part simply as: 'Halvdan was here.'",
+                okunus: "on ı mar-bıl pe-rı-pıt in dı sa-dırn a-pır ge-lı-ri, yu ken spot sii-krıt naynt sen-çu-ri vay-king ruunz! vay-king vo-ri-ırz vörkt in kon-sten-ti-nou-pıl ez e-liit bo-di-gardz for dı bi-zan-tin em-pı-rır. van bord sol-cır karvd ı ruu-nik in-skrip-şın in-tu dı mar-bıl, end eks-pörts trenz-leyt dı rii-dı-bıl part simp-li ez: 'halv-dan voz hiır.'",
+                tr: "Güney Üst Galeri'deki mermer korkuluk üzerinde 9. yüzyıldan kalma gizli Viking rünik harflerini görebilirsiniz! Viking savaşçıları İstanbul'da Bizans İmparatoru'nun seçkin muhafızları (Vareg Muhafızları) olarak görev yapıyordu. Canı sıkılan bir asker mermere rünik bir yazıt kazıdı; uzmanlar okunabilen kısmı 'Halvdan buradaydı' olarak çevirmektedir."
+            },
+            {
+                num: "03",
+                icon: "fa-hand-sparkles",
+                title: "The Wishing (Sweating) Column",
+                en: "In the northwest part of the building stands a damp marble column covered with bronze plates. According to legend, Emperor Justinian leaned his head against this column and his terrible headache vanished! For centuries, visitors put their thumb inside the small hole and turned their hand clockwise in a full circle to make a wish.",
+                okunus: "in dı nort-vest part ov dı bil-ding stendz ı demp mar-bıl ko-lım ka-vırd vid bronz pleyts. ı-kor-ding tu le-cınd, em-pı-rır cas-ti-ni-ın liind hiz hed ı-genst dis ko-lım end hiz te-rı-bıl he-deyk ve-nişt! for sen-çu-riz, vi-zi-tırz put deır tam in-sayd dı smol houl end törnd deır hend klok-vayz in ı ful sör-kıl tu meyk ı viş.",
+                tr: "Binanın kuzeybatı bölümünde bronz plakalarla kaplı nemli bir mermer sütun (Terleyen Direk) bulunur. Efsaneye göre İmparator Justinianus başını bu sütuna yaslamış ve şiddetli baş ağrısı yok olmuştur! Yüzyıllar boyunca ziyaretçiler dilek tutmak için başparmaklarını küçük deliğe sokup saat yönünde tam tur çevirmiştir."
+            },
+            {
+                num: "04",
+                icon: "fa-pen-nib",
+                title: "The Giant Calligraphy Medallions",
+                en: "The eight circular calligraphy medallions hanging on the main walls are 7.5 meters wide—among the largest in the Islamic world! Master calligrapher Kazasker Mustafa Izzet Efendi designed them between 1847 and 1849 using lightweight linden wood. Because they are much wider than the doors, craftsmen assembled them directly inside the mosque.",
+                okunus: "dı eyt sör-kyu-lır kı-lig-rı-fi mı-del-yınz hen-ging on dı meyn volz ar se-vın poynt fayv mi-tırz vayd—ı-mang dı lar-cıst in dı is-la-mik vörld! mes-tır kı-lig-rı-fır ka-zas-ker mus-ta-fa iz-zet e-fen-di di-zaynd dem bit-viin ey-tiin for-ti se-vın end ey-tiin for-ti nayn yuu-zing layt-veyt lin-dın vud. bi-koz dey ar maç vay-dır den dı dorz, krafts-mın ı-sem-bıld dem di-rekt-li in-sayd dı mosk.",
+                tr: "Ana duvarlarda asılı duran sekiz yuvarlak hat levhası 7,5 metre çapındadır ve İslam dünyasının en büyükleri arasındadır! Hattat Kazasker Mustafa İzzet Efendi bunları 1847-1849 yılları arasında hafif ıhlamur ağacı kullanarak tasarlamıştır. Kapılardan çok daha geniş oldukları için ustalar levhaları doğrudan caminin içinde birleştirmiştir."
+            },
+            {
+                num: "05",
+                icon: "fa-gopuram",
+                title: "Columns Recycled from Ancient Temples",
+                en: "Emperor Justinian wanted every corner of his empire to contribute to Hagia Sophia. Royal ships brought rare green marble columns from the ancient city of Ephesus, deep purple stone from Egypt, and tall pillars from Lebanon. Walking inside Hagia Sophia feels like walking through an open museum of the ancient Mediterranean world!",
+                okunus: "em-pı-rır cas-ti-ni-ın von-tıd ev-ri kor-nır ov hiz em-pay-ır tu kın-trib-yut tu hey-ci-a so-fi-ya. ro-yıl şips broot reır griin mar-bıl ko-lımz from dı eyn-şınt si-ti ov e-fı-sıs, diip pör-pıl stoun from i-cipt, end tol pi-lırz from le-bı-non. vol-king in-sayd hey-ci-a so-fi-ya fiilz layk vol-king truu en o-pın myu-zii-ım ov dı eyn-şınt me-di-tı-rey-ni-ın vörld!",
+                tr: "İmparator Justinianus imparatorluğunun her köşesinin Ayasofya'ya katkıda bulunmasını istedi. Kraliyet gemileri antik Efes kentinden nadir yeşil mermer sütunlar, Mısır'dan koyu mor porfir taşları ve Lübnan'dan yüksek sütunlar getirdi. Ayasofya'da yürümek antik Akdeniz dünyasının açık bir müzesinde yürümek gibidir!"
+            },
+            {
+                num: "06",
+                icon: "fa-crown",
+                title: "The Omphalion: Coronation Spot of Emperors",
+                en: "On the ground floor to the right of the nave, there is a special square mosaic made of colorful marble circles. Byzantines called this sacred spot the Omphalion, meaning the 'Navel of the World.' Every new Byzantine Emperor stood right inside the largest circle during magnificent coronation ceremonies.",
+                okunus: "on dı graund flor tu dı rayt ov dı neyv, der iz ı spe-şıl skver mo-zey-ik meyd ov ka-lır-ful mar-bıl sör-kılz. bi-zan-tinz kold dis sey-krid spot dı om-fa-li-on, mii-ning dı 'ney-vıl ov dı vörld.' ev-ri nyuu bi-zan-tin em-pı-rır stud rayt in-sayd dı lar-cıst sör-kıl dyu-ring meg-ni-fi-sınt ko-rı-ney-şın se-ri-mo-niiz.",
+                tr: "Giriş katta ana nefin sağ tarafında renkli mermer dairelerden oluşan özel kare bir mozaik alanı yer alır. Bizanslılar bu kutsal noktaya 'Dünyanın Göbeği' anlamına gelen Omphalion adını vermişti. Her yeni Bizans İmparatoru görkemli taç giyme törenleri sırasında en büyük dairenin tam içinde dururdu."
+            },
+            {
+                num: "07",
+                icon: "fa-cat",
+                title: "Gli, The Famous Cat of Hagia Sophia",
+                en: "For sixteen years, the most famous resident of Hagia Sophia was a cute green-eyed tabby cat named Gli! Born inside the monument in 2004, Gli posed for millions of tourist photos and even met world leaders like Barack Obama. Although Gli passed away peacefully in 2020, tourists still ask guides about her heartwarming story.",
+                okunus: "for siks-tiin yiırz, dı moust fey-mıs re-zi-dınt ov hey-ci-a so-fi-ya voz ı kyuut griin-ayd te-bi ket neymd gli! born in-sayd dı mon-yu-mınt in tuu tau-zınd for, gli pouzd for mil-yınz ov tu-rist fo-touz end ii-vın met vörld lii-dırz layk ba-rak o-ba-ma. ol-dou gli pest ı-vey piis-fu-li in tven-ti tven-ti, tu-rists stil esk gaydz ı-baut hör hart-vor-ming sto-ri.",
+                tr: "On altı yıl boyunca Ayasofya'nın en ünlü sakini Gli adında sevimli yeşil gözlü bir tekir kediydi! 2004 yılında anıtın içinde doğan Gli, milyonlarca turist fotoğrafına poz verdi ve hatta Barack Obama gibi dünya liderleriyle tanıştı. Gli 2020'de huzur içinde hayata veda etmiş olsa da turistler hala rehberlere onun sıcak hikayesini sorar."
+            },
+            {
+                num: "08",
+                icon: "fa-cubes-stacked",
+                title: "The Flexible Mortar Secret Against Earthquakes",
+                en: "How did such a massive dome survive in an earthquake zone for nearly 1,500 years? Modern engineers discovered that Byzantine builders mixed crushed brick dust with lime to create an elastic, shock-absorbing mortar! Combined with lightweight porous bricks from Rhodes and Mimar Sinan's strong outer support walls, Hagia Sophia stood firm through history.",
+                okunus: "hau did saç ı me-siv doum sör-vayv in en ört-kveyk zoun for niır-li van tau-zınd fayv han-drıd yiırz? mo-dırn en-ci-niırz dis-ka-vırd det bi-zan-tin bil-dırz mikst kraşt brik dast vid laym tu kri-eyt en i-les-tik, şok eb-zor-bing mor-tır! kım-baynd vid layt-veyt po-rıs briks from roudz end mi-mar si-nanz strong au-tır sı-port volz, hey-ci-a so-fi-ya stud förm truu his-tı-ri.",
+                tr: "Böylesine devasa bir kubbe bir deprem kuşağında yaklaşık 1.500 yıl nasıl ayakta kaldı? Modern mühendisler, Bizanslı ustaların ezilmiş tuğla tozunu kireçle karıştırarak esnek, darbe emici bir harç ürettiğini keşfetti! Rodos'tan gelen gözenekli hafif tuğlalar ve Mimar Sinan'ın güçlü dış payandalarıyla birleştiğinde Ayasofya tarih boyunca dimdik ayakta kaldı."
+            }
+        ];
+
+        // =====================================================
+        // 6. MINI QUIZ (10 INTERACTIVE QUESTIONS)
+        // =====================================================
+        const quizData = [
+            {
+                q: "1. What does the Greek name 'Hagia Sophia' mean in English?",
+                options: [
+                    "Saint Sophia of Istanbul",
+                    "Holy Wisdom",
+                    "Imperial Palace"
+                ],
+                correct: 1,
+                expTr: "Doğru! Hagia Sophia bir azize ismi değil, 'Holy Wisdom' (Kutsal Bilgelik) demektir.",
+                expEn: "Hagia Sophia translates to 'Holy Wisdom'."
+            },
+            {
+                q: "2. Hangi İngilizce kelimenin okunuşu 'şen-dı-liır' (/ˌʃæn.dəˈlɪər/) ve anlamı 'Avize'dir?",
+                options: [
+                    "Cathedral",
+                    "Calligraphy",
+                    "Chandelier"
+                ],
+                correct: 2,
+                expTr: "Harika! Chandelier (şen-dı-liır) = Avize.",
+                expEn: "Low-hanging chandeliers illuminate the carpets inside Hagia Sophia."
+            },
+            {
+                q: "3. Turistlere 'Ayakkabılarınızı çıkarıp ayakkabılıklara koyun' demek için hangi cümle kullanılır?",
+                options: [
+                    "Please take off your shoes and put them in the shoe racks.",
+                    "Please cover your shoes with a headscarf.",
+                    "Please look up at the shoe medallions."
+                ],
+                correct: 0,
+                expTr: "Tam isabet! 'Take off your shoes' (ayakkabılarınızı çıkarın) ve 'shoe racks' (ayakkabılıklar).",
+                expEn: "Visitors place their shoes in numbered shoe racks before stepping onto the carpets."
+            },
+            {
+                q: "4. Kare plan üzerindeki dev yuvarlak kubbeyi taşıyan dört kavisli üçgen mimari öğeye ne denir?",
+                options: [
+                    "Minbars",
+                    "Pendentives",
+                    "Runes"
+                ],
+                correct: 1,
+                expTr: "Doğru! Pendentive (Pandantif), kubbeyi kare tabana aktaran mimari mucizedir.",
+                expEn: "Four triangular pendentives carry the weight of the central dome."
+            },
+            {
+                q: "5. Kıble (Mekke) yönünü gösteren niş ve imamın Cuma hutbesi için çıktığı merdivenli kürsü sırasıyla hangileridir?",
+                options: [
+                    "Narthex & Nave",
+                    "Mihrab & Minbar (Pulpit)",
+                    "Medallion & Dome"
+                ],
+                correct: 1,
+                expTr: "Süper! Mihrab kıble yönünü gösterir, Minbar (Pulpit) ise hutbe okunan kürsüdür.",
+                expEn: "The mihrab faces Mecca, while the imam gives the Friday sermon from the minbar."
+            },
+            {
+                q: "6. Complete the guide's sentence: 'After the conquest in 1453, the cathedral was __________ into an imperial mosque.'",
+                options: [
+                    "collapsed",
+                    "converted",
+                    "scratched"
+                ],
+                correct: 1,
+                expTr: "Doğru! 'be converted into...' = '...-e dönüştürülmek' rehberlerin en sık kullandığı fiildir.",
+                expEn: "Sultan Mehmed II converted the cathedral into an imperial mosque."
+            },
+            {
+                q: "7. Üst Galeri'deki mermer korkulukta bulunan 9. yüzyıl Viking rünik yazıtında ('Rune / Inscription') ne yazmaktadır?",
+                options: [
+                    "Justinian built this dome",
+                    "Halvdan was here",
+                    "Welcome to Ephesus"
+                ],
+                correct: 1,
+                expTr: "Harika! Vareg Muhafızı olan Viking askeri mermere 'Halvdan was here' kazımıştır.",
+                expEn: "A Viking bodyguard carved 'Halvdan was here' in runic letters."
+            },
+            {
+                q: "8. Tur sonunda grubu 20 dakika serbest bırakıp buluşma yeri verirken hangi kalıp en uygundur?",
+                options: [
+                    "Our meeting point is right outside the exit gate in twenty minutes.",
+                    "Our coronation ceremony is inside the Imperial Door.",
+                    "The earthquake collapsed in twenty minutes."
+                ],
+                correct: 0,
+                expTr: "Çok güzel! 'Meeting point' (buluşma noktası) grup yönetiminde temel terimdir.",
+                expEn: "Always give both a clear meeting point and an exact time to your group."
+            },
+            {
+                q: "9. Bizans imparatorlarının taç giyme törenlerinde ('Coronation') üzerinde durduğu renkli dairesel mermer alana ne ad verilir?",
+                options: [
+                    "The Narthex",
+                    "The Omphalion",
+                    "The Shoe Rack"
+                ],
+                correct: 1,
+                expTr: "Doğru! Omphalion ('Dünyanın Göbeği') imparatorların taç giydiği kutsal mermer alandır.",
+                expEn: "Byzantine Emperors were crowned on the circular marble Omphalion."
+            },
+            {
+                q: "10. Hangi kelimenin okunuşu ve anlamı YANLIŞ eşleştirilmiştir?",
+                options: [
+                    "Sacred (sey-krid) = Kutsal",
+                    "Ceiling (sii-ling) = Tavan",
+                    "Earthquake (ört-kveyk) = Başyapıt"
+                ],
+                correct: 2,
+                expTr: "Doğru tespit! Earthquake = Deprem demektir; Başyapıt ise 'Masterpiece' (mes-tır-piis) kelimesidir.",
+                expEn: "Earthquake means 'Deprem', whereas Masterpiece means 'Başyapıt'."
+            }
+        ];
+
+        // =====================================================
+        // STATE VARIABLES & WEB SPEECH API ENGINE
+        // =====================================================
+        let currentSpeechRate = 1.0;
+        let englishVoice = null;
+        let activeVocabCategory = 'all';
+        let hideVocabTurkish = false;
+        let learnedWordIds = new Set();
+
+        let activePhraseCategory = 'all';
+        let showReadingPron = true;
+        let showReadingTr = false;
+        let showDialoguePron = true;
+        let showDialogueTr = false;
+        let showFactsPronAll = true;
+
+        let isSequencePlaying = false;
+        let sequenceMode = null; // 'reading' | 'dialogue'
+        let sequenceCursor = 0;
+
+        let quizAnswers = {};
+        let quizScore = 0;
+
+        window.activeUtteranceRef = null;
+
+        // Load learned progress safely
+        try {
+            const saved = localStorage.getItem('hagia_sophia_learned_v2');
+            if (saved) {
+                JSON.parse(saved).forEach(id => learnedWordIds.add(id));
+            }
+        } catch (err) {
+            // Ignore storage restriction errors in sandboxed iframes
+        }
+
+        function saveLearnedProgress() {
+            try {
+                localStorage.setItem('hagia_sophia_learned_v2', JSON.stringify(Array.from(learnedWordIds)));
+            } catch (err) {}
+        }
+
+        function selectBestEnglishVoice() {
+            if (!('speechSynthesis' in window)) return;
+            const voices = window.speechSynthesis.getVoices();
+            if (!voices || voices.length === 0) return;
+
+            englishVoice =
+                voices.find(v => v.lang === 'en-US' && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha'))) ||
+                voices.find(v => v.lang === 'en-GB' && (v.name.includes('Google') || v.name.includes('Daniel'))) ||
+                voices.find(v => v.lang === 'en-US') ||
+                voices.find(v => v.lang === 'en-GB') ||
+                voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en')) ||
+                null;
+        }
+
+        if ('speechSynthesis' in window) {
+            selectBestEnglishVoice();
+            window.speechSynthesis.onvoiceschanged = selectBestEnglishVoice;
+        }
+
+        function setSpeechRate(rate) {
+            currentSpeechRate = rate;
+            [0.8, 1.0, 1.15].forEach(r => {
+                const key = r === 1.0 ? '1' : String(r);
+                const btn = document.getElementById(`rateBtn-${key}`);
+                if (!btn) return;
+                if (r === rate) {
+                    btn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-domegold-500 text-stone-950 shadow-sm";
+                } else {
+                    btn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition text-stone-300 hover:text-white";
+                }
+            });
+            showToast(`Seslendirme hızı ${rate}x olarak ayarlandı.`);
+        }
+
+        function setGlobalAudioStatus(playing, textLabel) {
+            const wave = document.getElementById('audioWaveIcon');
+            const idle = document.getElementById('audioIdleIcon');
+            const label = document.getElementById('audioStatusLabel');
+
+            if (playing) {
+                wave.classList.remove('hidden');
+                wave.classList.add('flex');
+                idle.classList.add('hidden');
+                label.textContent = textLabel || "İngilizce metin seslendiriliyor...";
+            } else {
+                wave.classList.add('hidden');
+                wave.classList.remove('flex');
+                idle.classList.remove('hidden');
+                label.textContent = "Sesli Rehber Hazır — Dinlemek için hoparlör butonlarına tıklayın";
+                document.querySelectorAll('.active-speaking').forEach(el => el.classList.remove('active-speaking'));
+                resetSequenceButtonsUI();
+            }
+        }
+
+        function resetSequenceButtonsUI() {
+            const rBtn = document.getElementById('playAllReadingBtn');
+            if (rBtn) {
+                rBtn.innerHTML = `<i class="fa-solid fa-play"></i> Tüm Metni Dinle (<span lang="en">Play All</span>)`;
+            }
+            const dBtn = document.getElementById('playFullDialogueBtn');
+            if (dBtn) {
+                dBtn.innerHTML = `<i class="fa-solid fa-circle-play"></i> Tüm Diyaloğu Sırayla Dinle`;
+            }
+        }
+
+        function stopSpeech() {
+            isSequencePlaying = false;
+            sequenceMode = null;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            setGlobalAudioStatus(false);
+        }
+
+        function speakEnglish(text, opts = {}) {
+            if (!('speechSynthesis' in window)) {
+                showToast("Tarayıcınız ses sentezlemeyi desteklemiyor.");
+                return;
+            }
+
+            if (!opts.keepSequence) {
+                isSequencePlaying = false;
+                sequenceMode = null;
+                resetSequenceButtonsUI();
+            }
+
+            window.speechSynthesis.cancel();
+            document.querySelectorAll('.active-speaking').forEach(el => el.classList.remove('active-speaking'));
+
+            setTimeout(() => {
+                const utter = new SpeechSynthesisUtterance(text);
+                window.activeUtteranceRef = utter;
+
+                if (!englishVoice) selectBestEnglishVoice();
+                if (englishVoice) utter.voice = englishVoice;
+                utter.lang = (englishVoice && englishVoice.lang) ? englishVoice.lang : 'en-US';
+                utter.rate = currentSpeechRate;
+                utter.pitch = opts.pitch || 1.0;
+
+                if (opts.cardId) {
+                    const el = document.getElementById(opts.cardId);
+                    if (el) {
+                        el.classList.add('active-speaking');
+                        if (opts.scroll) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }
+
+                utter.onstart = () => {
+                    setGlobalAudioStatus(true, opts.statusLabel || `Seslendiriliyor: "${text.slice(0, 48)}${text.length > 48 ? '...' : ''}"`);
+                };
+
+                utter.onend = () => {
+                    if (opts.onDone && isSequencePlaying) {
+                        opts.onDone();
+                    } else {
+                        setGlobalAudioStatus(false);
+                    }
+                };
+
+                utter.onerror = () => {
+                    setGlobalAudioStatus(false);
+                };
+
+                window.speechSynthesis.speak(utter);
+            }, 40);
+        }
+
+        // Helper functions for speaking by ID (avoids quote-escaping issues)
+        function speakVocabWord(id) {
+            const item = vocabularyData.find(v => v.id === id);
+            if (!item) return;
+            speakEnglish(item.word, {
+                cardId: `vocab-card-${item.id}`,
+                statusLabel: `Kelime: ${item.word} (${item.okunus})`
+            });
+        }
+
+        function speakVocabExample(id) {
+            const item = vocabularyData.find(v => v.id === id);
+            if (!item) return;
+            speakEnglish(item.exEn, {
+                cardId: `vocab-card-${item.id}`,
+                statusLabel: `Örnek Cümle: ${item.word}`
+            });
+        }
+
+        function speakPhraseByIndex(idx) {
+            const p = guidingPhrasesData[idx];
+            if (!p) return;
+            speakEnglish(p.en, {
+                cardId: `phrase-card-${idx}`,
+                statusLabel: `Rehberlik Kalıbı: "${p.en.slice(0, 42)}..."`
+            });
+        }
+
+        function copyPhraseByIndex(idx) {
+            const p = guidingPhrasesData[idx];
+            if (!p) return;
+            const ta = document.createElement('textarea');
+            ta.value = p.en;
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast("İngilizce rehberlik kalıbı panoya kopyalandı!");
+            } catch (e) {
+                showToast("Kopyalama yapılamadı.");
+            }
+            document.body.removeChild(ta);
+        }
+
+        // =====================================================
+        // NAVIGATION & TOAST
+        // =====================================================
+        let toastTimeout = null;
+        function showToast(msg) {
+            const banner = document.getElementById('toastBanner');
+            document.getElementById('toastMessage').textContent = msg;
+            banner.classList.remove('hidden');
+            banner.classList.add('flex');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }, 2600);
+        }
+
+        function switchTab(tabKey) {
+            stopSpeech();
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`tab-${tabKey}`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tabKey) {
+                    btn.className = "tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 bg-terracotta-700 text-white shadow-sm";
+                } else {
+                    btn.className = "tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 text-stone-700 hover:bg-marble-200";
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // =====================================================
+        // RENDER SECTION 1: 35 VOCABULARY CARDS
+        // =====================================================
+        function updateLearnedProgressUI() {
+            const count = learnedWordIds.size;
+            const pct = Math.round((count / vocabularyData.length) * 100);
+            document.getElementById('learnedCountText').textContent = `${count} / ${vocabularyData.length} Öğrenildi`;
+            document.getElementById('learnedProgressBar').style.width = `${pct}%`;
+        }
+
+        function toggleLearnedWord(id) {
+            if (learnedWordIds.has(id)) {
+                learnedWordIds.delete(id);
+            } else {
+                learnedWordIds.add(id);
+            }
+            saveLearnedProgress();
+            updateLearnedProgressUI();
+            renderVocabulary();
+        }
+
+        function setVocabCategory(cat) {
+            activeVocabCategory = cat;
+            document.querySelectorAll('.vcat-btn').forEach(btn => {
+                if (btn.dataset.vcat === cat) {
+                    btn.className = "vcat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-terracotta-700 text-white";
+                } else {
+                    btn.className = "vcat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-marble-100 text-stone-700 hover:bg-marble-200";
+                }
+            });
+            renderVocabulary();
+        }
+
+        function toggleVocabMemorizeMode() {
+            hideVocabTurkish = !hideVocabTurkish;
+            const btn = document.getElementById('toggleHideMeaningsBtn');
+            if (hideVocabTurkish) {
+                btn.innerHTML = `<i class="fa-solid fa-eye"></i> Türkçe Anlamları Göster`;
+                showToast("Ezber Modu aktif! Anlamı görmek için bulanık kutuya tıklayabilirsiniz.");
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-eye-slash"></i> Türkçe Anlamları Gizle (Ezber Modu)`;
+            }
+            renderVocabulary();
+        }
+
+        function renderVocabulary() {
+            updateLearnedProgressUI();
+            const q = (document.getElementById('vocabSearchInput').value || '').toLowerCase().trim();
+            const grid = document.getElementById('vocabCardsGrid');
+
+            const filtered = vocabularyData.filter(item => {
+                const matchCat = activeVocabCategory === 'all' || item.cat === activeVocabCategory;
+                const matchSearch = !q ||
+                    item.word.toLowerCase().includes(q) ||
+                    item.tr.toLowerCase().includes(q) ||
+                    item.okunus.toLowerCase().includes(q);
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full bg-white p-8 rounded-2xl border border-marble-200 text-center text-stone-500">Aramanıza uygun kelime bulunamadı.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => {
+                const isLearned = learnedWordIds.has(item.id);
+                return `
+                <div id="vocab-card-${item.id}" class="bg-white rounded-2xl p-5 border ${isLearned ? 'border-emerald-400 bg-emerald-50/20' : 'border-marble-200'} shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                    <div>
+                        <!-- Top Row: Number + Category + Learned Checkbox -->
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-marble-200 text-stone-700">#${item.id}</span>
+                                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-marble-100 text-terracotta-800 border border-marble-300">${item.cat}</span>
+                            </div>
+                            <label class="inline-flex items-center gap-1.5 cursor-pointer select-none text-xs font-bold ${isLearned ? 'text-emerald-700' : 'text-stone-500 hover:text-stone-800'}">
+                                <input type="checkbox" ${isLearned ? 'checked' : ''} onchange="toggleLearnedWord(${item.id})" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer">
+                                <span>Öğrendim</span>
+                            </label>
+                        </div>
+
+                        <!-- Word & Audio Button -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <h3 class="font-display text-lg font-extrabold text-slatebyz-900" lang="en">${item.word}</h3>
+                                <div class="mt-1.5 inline-flex flex-wrap items-center gap-1.5 text-xs bg-amber-50 text-amber-950 border border-amber-200 px-2.5 py-1 rounded-xl">
+                                    <span class="font-mono text-stone-600" lang="en">${item.ipa}</span>
+                                    <span>•</span>
+                                    <span>Okunuşu: <strong>${item.okunus}</strong></span>
+                                </div>
+                            </div>
+                            <button onclick="speakVocabWord(${item.id})" class="shrink-0 w-10 h-10 rounded-xl bg-terracotta-700 hover:bg-terracotta-800 text-white flex items-center justify-center shadow-sm transition" title="Kelimeyi Dinle">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+
+                        <!-- Turkish Meaning (Toggleable Blur in Memorize Mode) -->
+                        <div onclick="this.classList.toggle('blur-sm'); this.classList.toggle('select-none');"
+                             class="mt-3.5 p-2.5 rounded-xl bg-marble-100/80 border border-marble-200 cursor-pointer transition ${hideVocabTurkish ? 'blur-sm select-none' : ''}"
+                             title="Gizlemek veya göstermek için tıklayın">
+                            <span class="text-[11px] font-bold text-domegold-600 block">Türkçe Anlamı:</span>
+                            <span class="text-sm font-extrabold text-stone-900">${item.tr}</span>
+                        </div>
+                    </div>
+
+                    <!-- Guide Example Sentence -->
+                    <div class="mt-3.5 pt-3 border-t border-marble-200 space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-stone-500">Örnek Rehber Cümlesi:</span>
+                            <button onclick="speakVocabExample(${item.id})" class="text-terracotta-700 hover:text-terracotta-900 font-extrabold flex items-center gap-1">
+                                <i class="fa-solid fa-circle-play"></i> Cümleyi Dinle
+                            </button>
+                        </div>
+                        <p class="text-stone-900 font-semibold leading-relaxed" lang="en">"${item.exEn}"</p>
+                        <p class="text-amber-900 bg-amber-50/70 px-2 py-1 rounded-lg">🗣️ Okunuşu: <em>${item.exOkunus}</em></p>
+                        <p class="text-stone-600 ${hideVocabTurkish ? 'hidden' : ''}">🇹🇷 ${item.exTr}</p>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // =====================================================
+        // RENDER SECTION 2: 18 GUIDING PHRASES
+        // =====================================================
+        function setPhraseCategory(cat) {
+            activePhraseCategory = cat;
+            document.querySelectorAll('.pcat-btn').forEach(btn => {
+                if (btn.dataset.pcat === cat) {
+                    btn.className = "pcat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-terracotta-700 text-white";
+                } else {
+                    btn.className = "pcat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-marble-100 text-stone-700 hover:bg-marble-200";
+                }
+            });
+            renderGuidingPhrases();
+        }
+
+        function renderGuidingPhrases() {
+            const container = document.getElementById('phrasesListContainer');
+            container.innerHTML = guidingPhrasesData.map((item, idx) => {
+                if (activePhraseCategory !== 'all' && item.cat !== activePhraseCategory) return '';
+                return `
+                <div id="phrase-card-${idx}" class="bg-white rounded-2xl p-5 sm:p-6 border border-marble-200 shadow-sm hover:border-domegold-400 transition flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div class="space-y-2 flex-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-md bg-marble-200 text-stone-700 text-xs font-extrabold">#${idx + 1}</span>
+                            <span class="px-3 py-0.5 rounded-full bg-terracotta-700/10 text-terracotta-800 text-xs font-bold">
+                                ${item.catTr} (<span lang="en">${item.catEn}</span>)
+                            </span>
+                        </div>
+                        <p class="text-base sm:text-lg font-extrabold text-slatebyz-900 leading-snug" lang="en">
+                            "${item.en}"
+                        </p>
+                        <div class="text-xs sm:text-sm bg-amber-50 text-amber-950 border border-amber-200 px-3 py-1.5 rounded-xl inline-block">
+                            🗣️ <strong>Okunuşu:</strong> ${item.okunus}
+                        </div>
+                        <p class="text-sm font-semibold text-stone-700">
+                            🇹🇷 ${item.tr}
+                        </p>
+                        <div class="text-xs text-stone-600 bg-marble-50 border border-marble-200 px-3 py-2 rounded-xl flex items-start gap-2">
+                            <i class="fa-solid fa-lightbulb text-domegold-500 mt-0.5"></i>
+                            <span><strong>Rehber İpucu:</strong> ${item.tip}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex lg:flex-col items-center gap-2 shrink-0">
+                        <button onclick="speakPhraseByIndex(${idx})" class="flex-1 lg:w-36 px-4 py-2.5 rounded-xl bg-terracotta-700 hover:bg-terracotta-800 text-white text-xs sm:text-sm font-bold shadow-sm transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-high"></i> Dinle
+                        </button>
+                        <button onclick="copyPhraseByIndex(${idx})" class="px-4 py-2 rounded-xl bg-marble-100 hover:bg-marble-200 text-stone-700 border border-marble-300 text-xs font-bold transition flex items-center justify-center gap-1.5 lg:w-36">
+                            <i class="fa-regular fa-copy"></i> Kopyala
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // =====================================================
+        // RENDER SECTION 3: READING PASSAGE + COMPREHENSION
+        // =====================================================
+        function renderReadingSection() {
+            const box = document.getElementById('readingParagraphsBox');
+            box.innerHTML = readingParagraphs.map((p, idx) => `
+                <div id="reading-para-${idx}" class="p-5 rounded-2xl bg-marble-50 border border-marble-200 space-y-3 transition">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <h3 class="font-display font-bold text-base sm:text-lg text-terracotta-800" lang="en">${p.heading}</h3>
+                        <button onclick="speakReadingParagraph(${idx})" class="px-3.5 py-1.5 rounded-xl bg-white hover:bg-amber-50 text-terracotta-800 border border-marble-300 text-xs font-extrabold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-volume-high text-domegold-500"></i> Paragrafı Dinle
+                        </button>
+                    </div>
+                    <p class="text-sm sm:text-base text-stone-900 leading-relaxed" lang="en">${p.htmlEn}</p>
+                    <div class="reading-pron-box ${showReadingPron ? '' : 'hidden'} p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-xs text-amber-950 leading-relaxed">
+                        🗣️ <strong>Okunuş Rehberi:</strong> ${p.okunus}
+                    </div>
+                    <div class="reading-tr-box ${showReadingTr ? '' : 'hidden'} p-3 rounded-xl bg-white border border-marble-200 text-xs sm:text-sm text-stone-700 leading-relaxed">
+                        🇹🇷 <strong>Türkçe Çeviri:</strong> ${p.tr}
+                    </div>
+                </div>
+            `).join('');
+
+            const compGrid = document.getElementById('readingCompGrid');
+            compGrid.innerHTML = readingCompData.map((item, qIdx) => `
+                <div class="p-4 sm:p-5 rounded-2xl bg-marble-50 border border-marble-200 space-y-3">
+                    <p class="text-sm font-extrabold text-slatebyz-900" lang="en">${item.q}</p>
+                    <div class="space-y-2">
+                        ${item.options.map((opt, oIdx) => `
+                            <button id="rcomp-${qIdx}-${oIdx}" onclick="checkReadingComp(${qIdx}, ${oIdx})"
+                                class="w-full text-left px-3.5 py-2.5 rounded-xl bg-white hover:bg-amber-50 border border-marble-300 text-xs sm:text-sm font-medium transition" lang="en">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="rcomp-fb-${qIdx}" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+                </div>
+            `).join('');
+        }
+
+        function speakReadingParagraph(idx) {
+            const p = readingParagraphs[idx];
+            if (!p) return;
+            speakEnglish(p.rawEn, {
+                cardId: `reading-para-${idx}`,
+                statusLabel: `Okuma Parçası — Paragraf ${p.num}/5`
+            });
+        }
+
+        function togglePlayAllReading() {
+            if (isSequencePlaying && sequenceMode === 'reading') {
+                stopSpeech();
+                return;
+            }
+            isSequencePlaying = true;
+            sequenceMode = 'reading';
+            sequenceCursor = 0;
+            document.getElementById('playAllReadingBtn').innerHTML = `<i class="fa-solid fa-stop"></i> Okumayı Durdur`;
+            runNextReadingParagraph();
+        }
+
+        function runNextReadingParagraph() {
+            if (!isSequencePlaying || sequenceCursor >= readingParagraphs.length) {
+                stopSpeech();
+                return;
+            }
+            const p = readingParagraphs[sequenceCursor];
+            speakEnglish(p.rawEn, {
+                keepSequence: true,
+                cardId: `reading-para-${sequenceCursor}`,
+                scroll: true,
+                statusLabel: `Tüm Metin Okunuyor (${p.num}/5)`,
+                onDone: () => {
+                    sequenceCursor++;
+                    runNextReadingParagraph();
+                }
+            });
+        }
+
+        function toggleReadingPronunciation() {
+            showReadingPron = !showReadingPron;
+            document.getElementById('toggleReadingPronBtn').textContent = showReadingPron
+                ? '🗣️ Okunuş Rehberini Gizle'
+                : '🗣️ Okunuş Rehberini Göster';
+            document.querySelectorAll('.reading-pron-box').forEach(el => el.classList.toggle('hidden', !showReadingPron));
+        }
+
+        function toggleReadingTranslations() {
+            showReadingTr = !showReadingTr;
+            document.getElementById('toggleReadingTransBtn').textContent = showReadingTr
+                ? '🇹🇷 Türkçe Çeviriyi Gizle'
+                : '🇹🇷 Türkçe Çeviriyi Göster';
+            document.querySelectorAll('.reading-tr-box').forEach(el => el.classList.toggle('hidden', !showReadingTr));
+        }
+
+        function openInlineVocab(vocabId) {
+            const item = vocabularyData.find(v => v.id === vocabId);
+            if (!item) return;
+            const popup = document.getElementById('inlineVocabPopup');
+            document.getElementById('popupVocabWord').textContent = item.word;
+            document.getElementById('popupVocabPron').textContent = `${item.ipa} • Okunuşu: ${item.okunus}`;
+            document.getElementById('popupVocabMeaning').textContent = `🇹🇷 ${item.tr}`;
+            document.getElementById('popupVocabSpeakBtn').onclick = () => speakEnglish(item.word, { statusLabel: `Kelime: ${item.word}` });
+            popup.classList.remove('hidden');
+            speakEnglish(item.word, { statusLabel: `Kelime: ${item.word}` });
+        }
+
+        function checkReadingComp(qIdx, oIdx) {
+            const q = readingCompData[qIdx];
+            const fb = document.getElementById(`rcomp-fb-${qIdx}`);
+            fb.classList.remove('hidden');
+
+            q.options.forEach((_, idx) => {
+                const b = document.getElementById(`rcomp-${qIdx}-${idx}`);
+                b.classList.remove('bg-emerald-100', 'border-emerald-500', 'bg-red-100', 'border-red-400');
+            });
+
+            const target = document.getElementById(`rcomp-${qIdx}-${oIdx}`);
+            if (oIdx === q.correct) {
+                target.classList.add('bg-emerald-100', 'border-emerald-500');
+                fb.className = "p-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-900 border border-emerald-200";
+                fb.innerHTML = `✅ ${q.explanation}`;
+            } else {
+                target.classList.add('bg-red-100', 'border-red-400');
+                fb.className = "p-3 rounded-xl text-xs font-semibold bg-red-50 text-red-900 border border-red-200";
+                fb.innerHTML = `❌ Tekrar deneyin! ${q.explanation}`;
+            }
+        }
+
+        // =====================================================
+        // RENDER SECTION 4: 14-LINE GUIDED TOUR DIALOGUE
+        // =====================================================
+        function renderDialogueSection() {
+            const box = document.getElementById('dialogueLinesContainer');
+            box.innerHTML = dialogueData.map((line, idx) => {
+                const isGuide = line.role === 'guide';
+                const badgeStyle = isGuide
+                    ? 'bg-terracotta-700 text-white'
+                    : (line.role === 'sarah' ? 'bg-sky-700 text-white' : 'bg-emerald-700 text-white');
+                const cardStyle = isGuide
+                    ? 'bg-amber-50/40 border-domegold-400/70'
+                    : 'bg-white border-marble-200 sm:ml-8';
+                const flag = isGuide ? '🚩' : (line.role === 'sarah' ? '🇬🇧' : '🇮🇹');
+
+                return `
+                <div id="diag-card-${idx}" class="rounded-2xl p-4 sm:p-5 border ${cardStyle} shadow-sm transition flex items-start justify-between gap-3">
+                    <div class="space-y-2 flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-0.5 rounded-full text-xs font-bold ${badgeStyle}" lang="en">${flag} ${line.speaker}</span>
+                            <span class="text-xs font-bold text-stone-400">#${idx + 1}</span>
+                        </div>
+                        <p class="text-sm sm:text-base font-semibold text-slatebyz-900 leading-relaxed" lang="en">
+                            "${line.en}"
+                        </p>
+                        <div class="diag-pron-box ${showDialoguePron ? '' : 'hidden'} text-xs bg-amber-100/70 text-amber-950 px-3 py-1.5 rounded-xl">
+                            🗣️ <strong>Okunuşu:</strong> ${line.okunus}
+                        </div>
+                        <p class="diag-tr-box ${showDialogueTr ? '' : 'hidden'} text-xs sm:text-sm text-stone-600 pt-1.5 border-t border-marble-200">
+                            🇹🇷 ${line.tr}
+                        </p>
+                    </div>
+                    <button onclick="speakDialogueLine(${idx})" class="shrink-0 w-10 h-10 rounded-xl bg-terracotta-700 hover:bg-terracotta-800 text-white flex items-center justify-center shadow-sm transition" title="Bu repliği dinle">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function speakDialogueLine(idx) {
+            const line = dialogueData[idx];
+            if (!line) return;
+            speakEnglish(line.en, {
+                pitch: line.pitch,
+                cardId: `diag-card-${idx}`,
+                statusLabel: `${line.speaker} (#${idx + 1}/14)`
+            });
+        }
+
+        function togglePlayFullDialogue() {
+            if (isSequencePlaying && sequenceMode === 'dialogue') {
+                stopSpeech();
+                return;
+            }
+            isSequencePlaying = true;
+            sequenceMode = 'dialogue';
+            sequenceCursor = 0;
+            document.getElementById('playFullDialogueBtn').innerHTML = `<i class="fa-solid fa-stop"></i> Diyaloğu Durdur`;
+            runNextDialogueLine();
+        }
+
+        function runNextDialogueLine() {
+            if (!isSequencePlaying || sequenceCursor >= dialogueData.length) {
+                stopSpeech();
+                return;
+            }
+            const line = dialogueData[sequenceCursor];
+            speakEnglish(line.en, {
+                keepSequence: true,
+                pitch: line.pitch,
+                cardId: `diag-card-${sequenceCursor}`,
+                scroll: true,
+                statusLabel: `Diyalog (${sequenceCursor + 1}/14) — ${line.speaker}`,
+                onDone: () => {
+                    sequenceCursor++;
+                    runNextDialogueLine();
+                }
+            });
+        }
+
+        function toggleDialoguePron() {
+            showDialoguePron = !showDialoguePron;
+            document.getElementById('toggleDiagPronBtn').textContent = showDialoguePron
+                ? '🗣️ Okunuşları Gizle'
+                : '🗣️ Okunuşları Göster';
+            document.querySelectorAll('.diag-pron-box').forEach(el => el.classList.toggle('hidden', !showDialoguePron));
+        }
+
+        function toggleDialogueTrans() {
+            showDialogueTr = !showDialogueTr;
+            document.getElementById('toggleDiagTransBtn').textContent = showDialogueTr
+                ? '🇹🇷 Çeviriyi Gizle'
+                : '🇹🇷 Çeviriyi Göster';
+            document.querySelectorAll('.diag-tr-box').forEach(el => el.classList.toggle('hidden', !showDialogueTr));
+        }
+
+        // =====================================================
+        // RENDER SECTION 5: 8 INTERESTING FACTS
+        // =====================================================
+        function renderFactsSection() {
+            const grid = document.getElementById('factsCardsGrid');
+            grid.innerHTML = interestingFactsData.map((fact, idx) => `
+                <div id="fact-card-${idx}" class="bg-white rounded-2xl p-5 sm:p-6 border border-marble-200 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-terracotta-700 to-slatebyz-900 text-domegold-400 flex items-center justify-center text-lg shadow-sm shrink-0">
+                                    <i class="fa-solid ${fact.icon}"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-extrabold text-domegold-600" lang="en">FACT #${fact.num}</span>
+                                    <h3 class="font-display text-base sm:text-lg font-bold text-slatebyz-900 leading-snug" lang="en">${fact.title}</h3>
+                                </div>
+                            </div>
+                            <button onclick="speakFactByIndex(${idx})" class="shrink-0 px-3.5 py-2 rounded-xl bg-terracotta-700 hover:bg-terracotta-800 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5" lang="en">
+                                <i class="fa-solid fa-volume-high"></i> Play
+                            </button>
+                        </div>
+
+                        <p class="text-sm text-stone-800 leading-relaxed font-medium" lang="en">${fact.en}</p>
+
+                        <div class="fact-pron-box ${showFactsPronAll ? '' : 'hidden'} p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-950 leading-relaxed">
+                            🗣️ <strong>Okunuşu:</strong> ${fact.okunus}
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-marble-200 text-xs text-stone-600 leading-relaxed bg-marble-50 p-3 rounded-xl">
+                        🇹🇷 <strong>Türkçe Özeti:</strong> ${fact.tr}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function speakFactByIndex(idx) {
+            const f = interestingFactsData[idx];
+            if (!f) return;
+            speakEnglish(`${f.title}. ${f.en}`, {
+                cardId: `fact-card-${idx}`,
+                statusLabel: `Fact #${f.num}: ${f.title}`
+            });
+        }
+
+        function toggleAllFactsPron() {
+            showFactsPronAll = !showFactsPronAll;
+            document.querySelectorAll('.fact-pron-box').forEach(el => el.classList.toggle('hidden', !showFactsPronAll));
+        }
+
+        // =====================================================
+        // RENDER SECTION 6: 10-QUESTION INTERACTIVE MINI QUIZ
+        // =====================================================
+        function renderQuizSection() {
+            document.getElementById('quizScoreCount').textContent = quizScore;
+            const list = document.getElementById('quizQuestionsList');
+            list.innerHTML = quizData.map((item, qIdx) => `
+                <div class="bg-white rounded-2xl p-5 sm:p-6 border border-marble-200 shadow-sm space-y-3.5">
+                    <p class="font-extrabold text-sm sm:text-base text-slatebyz-900">${item.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        ${item.options.map((opt, oIdx) => `
+                            <button id="qopt-${qIdx}-${oIdx}" onclick="selectQuizOption(${qIdx}, ${oIdx})"
+                                class="text-left px-4 py-3 rounded-xl border border-marble-300 bg-marble-50 hover:bg-amber-50 text-xs sm:text-sm font-semibold transition" lang="en">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="qfb-${qIdx}" class="hidden p-3.5 rounded-xl text-xs sm:text-sm space-y-1"></div>
+                </div>
+            `).join('');
+        }
+
+        function selectQuizOption(qIdx, selectedIdx) {
+            if (quizAnswers[qIdx] !== undefined) return;
+            quizAnswers[qIdx] = selectedIdx;
+
+            const item = quizData[qIdx];
+            const fb = document.getElementById(`qfb-${qIdx}`);
+            fb.classList.remove('hidden');
+
+            item.options.forEach((_, i) => {
+                const btn = document.getElementById(`qopt-${qIdx}-${i}`);
+                btn.disabled = true;
+                if (i === item.correct) {
+                    btn.className = "text-left px-4 py-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-950 text-xs sm:text-sm font-extrabold";
+                } else if (i === selectedIdx) {
+                    btn.className = "text-left px-4 py-3 rounded-xl border-2 border-red-400 bg-red-50 text-red-900 text-xs sm:text-sm font-semibold";
+                } else {
+                    btn.classList.add('opacity-60');
+                }
+            });
+
+            if (selectedIdx === item.correct) {
+                quizScore++;
+                document.getElementById('quizScoreCount').textContent = quizScore;
+                fb.className = "p-3.5 rounded-xl text-xs sm:text-sm bg-emerald-50 text-emerald-950 border border-emerald-200 space-y-1";
+                fb.innerHTML = `<div>✅ <strong>${item.expTr}</strong></div><div class="text-emerald-800" lang="en">💡 ${item.expEn}</div>`;
+            } else {
+                fb.className = "p-3.5 rounded-xl text-xs sm:text-sm bg-red-50 text-red-950 border border-red-200 space-y-1";
+                fb.innerHTML = `<div>❌ <strong>Yanlış seçim.</strong> ${item.expTr}</div><div class="text-red-800" lang="en">💡 ${item.expEn}</div>`;
+            }
+
+            if (Object.keys(quizAnswers).length === quizData.length) {
+                showToast(`Tebrikler, testi tamamladınız! Skorunuz: ${quizScore} / 10`);
+            }
+        }
+
+        function resetQuizAll() {
+            quizAnswers = {};
+            quizScore = 0;
+            renderQuizSection();
+            showToast("Mini test sıfırlandı!");
+        }
+
+        // =====================================================
+        // INITIALIZE ON WINDOW LOAD
+        // =====================================================
+        window.onload = function () {
+            renderVocabulary();
+            renderGuidingPhrases();
+            renderReadingSection();
+            renderDialogueSection();
+            renderFactsSection();
+            renderQuizSection();
+        };
+    </script>
+</body>
+</html>
